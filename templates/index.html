@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Borrowing System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Borrowing System</h1>
+  <form action="/success" method="POST">
+    <label for="id">Your ID</label>
+    <input type="text" placeholder="ID" name="id"><br /><br />
+    <label for="name">Your Name</label>
+    <input type="text" placeholder="Name" name="name"><br /><br />
+    <label for="tel">Your Number</label>
+    <input type="text" placeholder="Number" name="tel"><br /><br />
+    <label for="stuff">Stuff</label>
+    <input type="text" placeholder="Stuff" name="stuff"><br /><br />
+    <input type="submit" value="Submit">
+  </form>
+</body>
+</html>
