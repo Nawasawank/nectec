@@ -3,3 +3,4 @@ local.config
 
 # environment
 env/
+requirements.txt
