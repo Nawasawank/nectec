@@ -1,13 +1,14 @@
 from flask import Flask, render_template,request,flash,redirect,url_for,session
 import mysql.connector
 import datetime
+import os
 from pyzbar import pyzbar
 from PIL import Image
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'snsdforever9'
+app.config['MYSQL_PASSWORD'] = 'Mingming260947'
 app.config['MYSQL_DB'] = 'borrowingsystem'
 app.secret_key = 'kf1234'
 
@@ -113,13 +114,12 @@ def scan_qr_code():
         print(string_data)
 
        
-        check_QR = True
+        
         owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
         mycursor.execute(owner_sql,(string_data,))
         myresult = mycursor.fetchall()
         num =  len(myresult)
         if num==0:
-            check_QR = False
             avaliable = "None"
         else:   
             avaliable = myresult
@@ -177,6 +177,8 @@ def scan_qr_code():
                     values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,option)
                     mycursor.execute(sql, values)
                     mydb.commit()
+                elif avaliable=="None":
+                    error_messages.append("Your QR code is wrong")
                 elif num==0:
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
@@ -186,8 +188,6 @@ def scan_qr_code():
                     values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,option)
                     mycursor.execute(sql, values)
                     mydb.commit()
-                elif avaliable=="None":
-                    error_messages.append("Your QR code is wrong")
                 else:
                     error_messages.append("Not avaliable")
             elif option=="return":
@@ -220,4 +220,5 @@ def scan_qr_code():
         return render_template('success.html',newstuff=Stuff,newoption=option,newstrdata=string_data,newcheck = check)
 
 if __name__ == "__main__":
-    app.run("0.0.0.0",5000)
+    app.run (host = os.getenv('IP', "0.0.0.0"),
+            port = int(os.getenv('PORT',4444)))
