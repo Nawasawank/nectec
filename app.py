@@ -48,8 +48,7 @@ def scan_qr_code():
         string_data = decoded_data[0].data.decode('utf-8')
     else:
         check=False
-
-    
+                
     if request.method == 'POST':
         id = request.form['id']
         name = request.form['name']
@@ -71,7 +70,7 @@ def scan_qr_code():
         owner_sql = "SELECT nstda_code FROM user"
         mycursor.execute(owner_sql)
         owner_myresult = mycursor.fetchall()
-
+        count = 0
         num = len(owner_myresult)
         for i in range(num):
             if string_data==owner_myresult[i][0]:
@@ -113,10 +112,17 @@ def scan_qr_code():
         print(count)
         print(string_data)
 
+       
+        check_QR = True
         owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
         mycursor.execute(owner_sql,(string_data,))
         myresult = mycursor.fetchall()
-        avaliable = myresult
+        num =  len(myresult)
+        if num==0:
+            check_QR = False
+            avaliable = "None"
+        else:   
+            avaliable = myresult
 
 
         '''if option == "borrow":
@@ -154,6 +160,11 @@ def scan_qr_code():
         myresult = mycursor.fetchall()
         tel_user=myresult
 
+        #checkqr
+        sql = "SELECT nstda_code from user"
+        mycursor.execute(sql)
+        qr_user = mycursor.fetchall()
+
         #insert information
         if str(string_data)!="None":
             num=len(name_user)
@@ -175,6 +186,8 @@ def scan_qr_code():
                     values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,option)
                     mycursor.execute(sql, values)
                     mydb.commit()
+                elif avaliable=="None":
+                    error_messages.append("Your QR code is wrong")
                 else:
                     error_messages.append("Not avaliable")
             elif option=="return":
