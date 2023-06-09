@@ -1,10 +1,14 @@
 import mysql.connector
+import yaml
+
+with open('local.config', 'r') as file:
+    local_config = yaml.safe_load(file)
 
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="snsdforever9",
-    database="borrowing_system"
+    host=local_config["host"],
+    user=local_config["user"],
+    password=local_config["password"],
+    database=local_config["database"]
 )
 
 
