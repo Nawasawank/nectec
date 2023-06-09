@@ -1,2 +1,5 @@
 # local configuration file
 local.config
+
+# environment
+env/
