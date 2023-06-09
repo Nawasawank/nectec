@@ -25,6 +25,8 @@
       width: 100%;
       padding: 5px;
       margin-bottom: 10px;
+      border: 2px solid #555;
+      border-radius: 5px;
     }
 
     input[type="submit"] {
@@ -34,25 +36,53 @@
       color: white;
       border: none;
       cursor: pointer;
+      border-radius: 20px;
     }
 
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    select {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 15px;
+    }
+
+    input[type="file"] {
+      margin-bottom: 15px;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
   <h1>Borrowing System</h1>
-  <form action="/success" method="POST">
+  <form action="/success" method="POST" enctype="multipart/form-data">
     <label for="id">Your ID</label>
     <input type="text" placeholder="ID" name="id"><br /><br />
     <label for="name">Your Name</label>
     <input type="text" placeholder="Name" name="name"><br /><br />
     <label for="tel">Your Number</label>
     <input type="text" placeholder="Number" name="tel"><br /><br />
-    <label for="stuff">Stuff</label>
-    <input type="text" placeholder="Stuff" name="stuff"><br /><br />
-    <input type="submit" value="Submit">
+    <label for="cars">Choose an option</label>
+    <select name="option" id="option">
+      <option value="borrow">borrow</option>
+      <option value="return">return</option>
+    </select>
+    <br><br>
+    <input type="file" name="qr_code" accept=".png, .jpg, .jpeg">
+  <br><br>
+  <input type="submit" value="Submit">
   </form>
-</body>
+  <div class="container" style="text-align: center; color: red;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <br>
+          {{msg}}<br>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  </body>
 </html>
+
