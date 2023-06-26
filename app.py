@@ -148,23 +148,6 @@ def scan_qr_code():
         num = len(myresult)
         sequence = num+1
 
-        #checkid
-        namesql="SELECT id from data WHERE qr=%s"
-        mycursor.execute(namesql,(string_data,))
-        myresult = mycursor.fetchall()
-        id_user=myresult
-
-        #checktel
-        namesql="SELECT tel from data WHERE qr=%s"
-        mycursor.execute(namesql,(string_data,))
-        myresult = mycursor.fetchall()
-        tel_user=myresult
-
-        #checkqr
-        sql = "SELECT nstda_code from user"
-        mycursor.execute(sql)
-        qr_user = mycursor.fetchall()
-
         print(avaliable[0][0])
         #insert information
         if error_messages ==[]:
