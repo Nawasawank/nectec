@@ -1,6 +1,7 @@
 from flask import Flask, render_template,request,flash,jsonify
 import mysql.connector
 import datetime
+from datetime import  timedelta
 import os
 
 from pyzbar import pyzbar
@@ -69,10 +70,11 @@ def scan_qr_code():
         id = request.form['id']
         name = request.form['name']
         tel = request.form['tel']
+        checkout = request.form['day']
+        ref = request.form['ref']
+
         mycursor=mydb.cursor()
         now = datetime.datetime.now()
-        
-
         if len(id) != 6:
             error_messages.append("ID must be 6 numbers")
         if len(name) < 2:
@@ -171,11 +173,16 @@ def scan_qr_code():
             if str(string_data)!="None":
                 num=len(name_user)
                 if avaliable[0][0] =="True":
+
+                    checkoutdate = (now + timedelta(days=int(checkout))).strftime('%Y-%m-%d ')
+                    print(checkoutdate)
+
+
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s)"
-                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow")
+                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s)"
+                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow",ref,checkoutdate)
                     mycursor.execute(sql, values)
                     mydb.commit()
                 elif avaliable=="None":
@@ -393,7 +400,7 @@ def alldataborrow():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
 
@@ -451,7 +458,7 @@ def returndata():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
 
@@ -484,7 +491,7 @@ def notreturn():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
     borrow_sql = "SELECT stuff FROM data WHERE status LIKE 'borrow'"
@@ -551,7 +558,7 @@ def stuffcheck():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
     mycursor = mydb.cursor()
@@ -583,7 +590,7 @@ def qrdata():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
     allData = request.json
@@ -667,7 +674,7 @@ def returnmonth():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Mingming260947",
+        password="snsdforever9",
         database="borrowingsystem"
     )
     allData = request.json
@@ -828,10 +835,6 @@ def accessinfor():
     return render_template('accessinformation.html', messages=error_messages,messages2=error)
 
     
-    
-
-
-
 if __name__ == "__main__":
     app.run (host = os.getenv('IP', "0.0.0.0"),
             port = int(os.getenv('PORT',4444)))
