@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Check Date</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+    select {
+        width: 200px;
+        height: 30px;
+        margin: 10px;
+    }
+    input[type="date"] {
+      text-align: center;
+      padding: 8px;
+      font-size: 16px;
+      width: 150px; 
+      height: 20px; 
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .button-group {
+      display: inline;
+    }
+
+    .button-group input,
+    .button-group button {
+      display: inline-block;
+    }
+    .button-group2 {
+      display: flex;
+      align-items: center; /* Align items vertically */
+      margin-top: 10px;
+    }
+
+    .button-group2 label {
+      margin-right: 5px;
+    }
+    
+    .go-back {
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    input[type="text"] {
+      text-align: center;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: center;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: middle;
+      border-bottom: 1px solid #ddd;
+      width: 10%;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .go-back a {
+      text-decoration: none;
+      padding: 5px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 5px;
+      display: inline-block; 
+      line-height: 23px; 
+      height: 23px
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+  </style>
+<script>
+ function submit() {
+  let dateFormat = document.getElementById('date').value;
+  let option = document.getElementById('option').value;
+  let data = {
+    'date': dateFormat,
+    'option': option
+  };
+  if (!dateFormat) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    let row = document.createElement('tr');
+    let messageCell = document.createElement('td');
+    messageCell.setAttribute('colspan', '7');
+    messageCell.textContent = 'No data found.';
+              messageCell.style.color = 'red';
+    row.appendChild(messageCell);
+    tableBody.appendChild(row);
+
+    return;
+  }
+  if (option === 'borrow') {
+    fetch('/borrowdata', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(data => {
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+          let row = document.createElement('tr');
+          let messageCell = document.createElement('td');
+          messageCell.setAttribute('colspan', '7');
+          messageCell.textContent = 'No data found.';
+          messageCell.style.color = 'red';
+          row.appendChild(messageCell);
+          tableBody.appendChild(row);
+        } else {
+          data.forEach((item, index) => {
+            let row = document.createElement('tr');
+            let orderCell = document.createElement('td');
+            orderCell.textContent = index + 1;
+            let idCell = document.createElement('td');
+            idCell.textContent = item.id;
+            let stuffCell = document.createElement('td');
+            stuffCell.textContent = item.stuff;
+            let dateCell = document.createElement('td');
+            dateCell.textContent = item.date;
+            let ownerCell = document.createElement('td');
+            ownerCell.textContent = item.owner;
+            let qrCell = document.createElement('td');
+            qrCell.textContent = item.qr;
+            let nameCell = document.createElement('td');
+            nameCell.textContent = item.name;
+
+            row.appendChild(orderCell);
+            row.appendChild(idCell);
+            row.appendChild(nameCell);
+            row.appendChild(stuffCell);
+            row.appendChild(dateCell);
+            row.appendChild(ownerCell);
+            row.appendChild(qrCell);
+
+            tableBody.appendChild(row);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  } else if (option === 'return') {
+    fetch('/returndata', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(data => {
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+          let row = document.createElement('tr');
+          let messageCell = document.createElement('td');
+          messageCell.setAttribute('colspan', '7');
+          messageCell.textContent = 'No data found.';
+          messageCell.style.color = 'red';
+        
+          row.appendChild(messageCell);
+          tableBody.appendChild(row);
+        } else {
+          data.forEach((item, index) => {
+            let row = document.createElement('tr');
+            let orderCell = document.createElement('td');
+            orderCell.textContent = index + 1;
+            let idCell = document.createElement('td');
+            idCell.textContent = item.id;
+            let stuffCell = document.createElement('td');
+            stuffCell.textContent = item.stuff;
+            let dateCell = document.createElement('td');
+            dateCell.textContent = item.date;
+            let ownerCell = document.createElement('td');
+            ownerCell.textContent = item.owner;
+            let qrCell = document.createElement('td');
+            qrCell.textContent = item.qr;
+            let nameCell = document.createElement('td');
+            nameCell.textContent = item.name;
+
+            row.appendChild(orderCell);
+            row.appendChild(idCell);
+            row.appendChild(nameCell);
+            row.appendChild(stuffCell);
+            row.appendChild(dateCell);
+            row.appendChild(ownerCell);
+            row.appendChild(qrCell);
+            tableBody.appendChild(row);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+}
+
+</script>
+</head>
+<body>
+  <h1>Checkdate</h1>
+  <div class="container">
+    <div class="button-group">
+      <label for="day">Day: &nbsp;&nbsp;</label>
+      <input type="date" id="date"><br><br>
+    </div>
+    <div class="button-group2">
+    <label for="name">Option: &nbsp;&nbsp;</label><br>
+      <select name="option" id="option">
+        <option value="borrow">Borrow</option>
+        <option value="return">Return</option>
+      </select><br>
+    </div><br>
+    <div class="go-back">
+      <button onclick="submit()">Submit</button>
+      <a href="/history">Go Back</a>
+    </div>
+  </div><br>
+  <table>
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>ID</th>
+        <th>Borrower</th>
+        <th>Stuff</th>
+        <th>Date</th>
+        <th>Owner</th>
+        <th>Code</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Access Information</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .button-group input,
+    .button-group button {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .go-back {
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      vertical-align: middle;
+      height: 23px;
+      line-height: 23px;
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+
+    input[type="text"] {
+      text-align: center;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    button {
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: center;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: middle;
+      border-bottom: 1px solid #ddd;
+      width: 10%;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 5px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+
+    p {
+      text-align: center;
+      margin: 5px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .error-row{
+      color: #FF0000; 
+    }
+
+    .error-message {
+    color: red;
+    margin: 5px;
+  }
+
+  </style>
+</head>
+<body>
+  <h1>Access Information</h1>
+  <form action="/access" method="POST" enctype="multipart/form-data">
+    <div class="button-container">
+      <input type="file" name="qr_code" accept=".png, .jpg, .jpeg">
+      <button type="submit">Submit</button>
+      <div class="go-back">
+        <a href="/history">Go Back</a>
+      </div>
+    </div>
+  </form>
+  {% if stuff %}
+  <p>{{ stuff }}</p>
+  {% endif %}
+  {% if owner %}
+  <p>{{ owner }}</p>
+  {% endif %}
+  {% if messages2 %}
+  {% for message in messages2 %}
+  <p class="error-message">{{ message }}</p>
+  {% endfor %}
+{% endif %}<br>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Borrower</th>
+        <th>Tel</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if data_list %}
+      {% for data in data_list %}
+      <tr>
+        <td>{{ data.id }}</td>
+        <td>{{ data.name }}</td>
+        <td>{{ data.tel }}</td>
+        <td>{{ data.date }}</td>
+        <td>{{ data.status }}</td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      {% if messages %}
+      <tr class="error-row">
+        <td colspan="5">
+          {% for message in messages %}
+          <p>{{ message }}</p>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endif %}
+      {% endif %}
+    </tbody>
+</table>
+</body>
+</html>
+
+
+
+

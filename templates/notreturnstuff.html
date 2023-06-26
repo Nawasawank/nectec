@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Users Record</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      text-align: center;
+      margin: 20px;
+    }
+
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: center;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: middle;
+      border-bottom: 1px solid #ddd;
+      width: 10%;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .go-back {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 5px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 10px;
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  fetch('/notreturn', {
+    method: 'POST'
+  })
+    .then(response => response.json())
+    .then(data => {
+      let tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      if (data.length === 0) {
+        let row = document.createElement('tr');
+        let messageCell = document.createElement('td');
+        messageCell.setAttribute('colspan', '7');
+        messageCell.style.color = 'red';
+        messageCell.textContent = 'No data found.';
+        row.appendChild(messageCell);
+        tableBody.appendChild(row);
+      } else {
+        data.forEach((item, index) => {
+          let row = document.createElement('tr');
+
+          let orderCell = document.createElement('td');
+          orderCell.textContent = index + 1;
+          let idCell = document.createElement('td');
+          idCell.textContent = item.id;
+          let stuffCell = document.createElement('td');
+          stuffCell.textContent = item.stuff;
+          let dateCell = document.createElement('td');
+          dateCell.textContent = item.date;
+          let ownerCell = document.createElement('td');
+          ownerCell.textContent = item.owner;
+          let qrCell = document.createElement('td');
+          qrCell.textContent = item.qr;
+          let nameCell = document.createElement('td');
+          nameCell.textContent = item.name;
+
+          row.appendChild(orderCell);
+          row.appendChild(idCell);
+          row.appendChild(nameCell);
+          row.appendChild(stuffCell);
+          row.appendChild(dateCell);
+          row.appendChild(ownerCell);
+          row.appendChild(qrCell);
+
+          tableBody.appendChild(row);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+});
+  </script>
+</head>
+<body>
+  <h1>Not Return Stuff</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>ID</th>
+        <th>Borrower</th>
+        <th>Stuff</th>
+        <th>Date Borrow</th>
+        <th>Owner</th>
+        <th>Code</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table><br>
+  <div class="go-back">
+    <a href="/history">Go Back</a>
+  </div>
+</body>
+</html>

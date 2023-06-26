@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>History</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 50px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .button-container form {
+      margin: 10px;
+    }
+
+    button {
+      font-size: 24px;
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-radius: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .go-back {
+      margin-top: 30px;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 10px 20px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 10px;
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+  </style>
+</head>
+<body>
+    <h1>History</h1>
+    <div class="button-container">
+      <form action="/userrecord" method="POST">
+        <button type="submit">User Record</button>
+      </form>
+
+      <form action="/checkdate" method="POST">
+        <button type="submit">Check Date</button>
+      </form>
+
+      <form action="/overview" method="POST">
+        <button type="submit">Overview</button>
+      </form>
+
+      <form action="/chart" method="POST">
+        <button type="submit">Chart</button>
+      </form>
+
+      <form action="/notreturnstuff" method="POST">
+        <button type="submit">Not Return Stuff</button>
+      </form>
+
+      <form action="/access">
+        <button type="submit">Access Information</button>
+      </form>
+    </div>
+
+    <div class="go-back">
+      <a href="/">Go Back</a>
+    </div>
+</body>
+</html>
