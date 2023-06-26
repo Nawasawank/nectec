@@ -5,17 +5,12 @@ import database
 
 from pyzbar import pyzbar
 from PIL import Image
-import yaml
-
-with open('local.config', 'r') as file:
-    local_config = yaml.safe_load(file)
-
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = local_config["host"]
-app.config['MYSQL_USER'] = local_config["user"]
-app.config['MYSQL_PASSWORD'] = local_config["password"]
-app.config['MYSQL_DB'] = local_config["database"]
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'snsdforever9'
+app.config['MYSQL_DB'] = 'borrowingsystem'
 app.secret_key = 'kf1234'
 
 
@@ -173,9 +168,9 @@ def scan_qr_code():
                 num=len(name_user)
                 if avaliable[0][0] =="True":
 
-                    checkout = "SELECT DATEADD(day, %s, date) FROM orders;"
-                    mycursor.execute(checkout,(day,))
-                    mydb.commit()
+                    #checkout = "SELECT DATEADD(day, %s, date) FROM orders;"
+                    #mycursor.execute(checkout,(day,))
+                    #mydb.commit()
 
 
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
