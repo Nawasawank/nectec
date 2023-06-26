@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Successfully borrowed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #0088cc;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    {% if newcheck %}
+        <h1>Successfully borrowed</h1>
+        <p>Borrowing List: {{ newstuff }}</p>
+    {% else %}
+        <h1>Unsuccessfully borrowed</h1>
+        <p>No QR Code found or failed to decode.</p>
+    {% endif %}
+    <a href="/">Finish</a>
+</body>
+</html>
