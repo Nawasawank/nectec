@@ -1,16 +1,21 @@
 from flask import Flask, render_template,request,flash,jsonify
 import mysql.connector
 import datetime
-import database
+import os
 
 from pyzbar import pyzbar
 from PIL import Image
+import yaml
+
+with open('local.config', 'r') as file:
+    local_config = yaml.safe_load(file)
+
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'snsdforever9'
-app.config['MYSQL_DB'] = 'borrowingsystem'
+app.config['MYSQL_HOST'] = local_config["host"]
+app.config['MYSQL_USER'] = local_config["user"]
+app.config['MYSQL_PASSWORD'] = local_config["password"]
+app.config['MYSQL_DB'] = local_config["database"]
 app.secret_key = 'kf1234'
 
 
@@ -38,7 +43,6 @@ def Return():
 def scan_qr_code():
     error_messages = []
     try :
-        error_messages = []
         # Get the uploaded file from the form
         qr_code = request.files['qr_code']
         # Open the uploaded file
@@ -51,6 +55,7 @@ def scan_qr_code():
     except:
         decoded_data = []
         error_messages.append("Insert Qr Code")
+
     # Extract the string data
     print(decoded_data)
     string_data = None
@@ -64,10 +69,9 @@ def scan_qr_code():
         id = request.form['id']
         name = request.form['name']
         tel = request.form['tel']
-        ref = request.form['ref']
-        day = request.form['day']
         mycursor=mydb.cursor()
         now = datetime.datetime.now()
+        
 
         if len(id) != 6:
             error_messages.append("ID must be 6 numbers")
@@ -167,16 +171,10 @@ def scan_qr_code():
             if str(string_data)!="None":
                 num=len(name_user)
                 if avaliable[0][0] =="True":
-
-                    #checkout = "SELECT DATEADD(day, %s, date) FROM orders;"
-                    #mycursor.execute(checkout,(day,))
-                    #mydb.commit()
-
-
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s)"
+                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s)"
                     values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow")
                     mycursor.execute(sql, values)
                     mydb.commit()
@@ -220,7 +218,8 @@ def succesreturn():
     except:
         decoded_data = []
         error_messages.append("Insert Qr Code")
-    print(decoded_data)
+
+    # Extract the string data
     if len(decoded_data) > 0:
         string_data = decoded_data[0].data.decode('utf-8')
     
@@ -262,8 +261,6 @@ def succesreturn():
                 check = True
                 break
 
-            
-        print(check)
         #อัพเดทสถานะด้วยการเช้ครหัส
         sql = "SELECT nstda_code FROM user"
         mycursor.execute(sql)
@@ -273,8 +270,6 @@ def succesreturn():
         for i in range(num):
             if string_data==myresult[i][0]:
                 count = i
-        print(count)
-        print(string_data)
 
        
         owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
@@ -306,19 +301,6 @@ def succesreturn():
         myresult = mycursor.fetchall()
         id_user=myresult
 
-        #checktel
-        namesql="SELECT tel from data WHERE qr=%s"
-        mycursor.execute(namesql,(string_data,))
-        myresult = mycursor.fetchall()
-        tel_user=myresult
-
-        #checkqr
-        sql = "SELECT nstda_code from user"
-        mycursor.execute(sql)
-        qr_user = mycursor.fetchall()
-
-        sequence
-        print(avaliable)
         if avaliable !="None":
             num=len(name_user)
             if avaliable[0][0] =="False":
@@ -359,9 +341,14 @@ def succesreturn():
                 elif avaliable==[]:
                     check=False
                 else:
-                    error_messages.append("incorrect id")
+                    if len(id_user)==0:
+                        error_messages.append("have nothing to return")
+                    else:
+                        error_messages.append("incorrect id")
             else:
                 error_messages.append("have nothing to return")
+      
+     
                 
             
         if len(error_messages) > 0:
@@ -371,7 +358,7 @@ def succesreturn():
         
         return render_template('successreturn.html',newstuff=Stuff,newstrdata=string_data,newcheck = check)
 
-@app.route('/history', methods=['GET', 'POST'])
+@app.route('/history', methods=['GET','POST'])
 def history():
     return render_template('history.html')
 
@@ -379,11 +366,13 @@ def history():
 def userrecord():
     return render_template('userrecord.html')
 
-
 @app.route('/overview', methods=['GET', 'POST'])
 def overview():
     return render_template('overview.html')
 
+@app.route('/accessinformation', methods=['GET', 'POST'])
+def accessinformation():
+    return render_template('accessinformation.html')
 
 @app.route('/notreturnstuff', methods=['GET', 'POST'])
 def notreturnstuff():
@@ -399,12 +388,12 @@ def chartperyear():
 
 
 #findall users record
-@app.route('/allborrow', methods=['POST'])
+@app.route('/allborrow', methods=['GET','POST'])
 def alldataborrow():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
 
@@ -433,23 +422,13 @@ def alldataborrow():
 #borrowing information
 @app.route('/borrowdata', methods=['POST'])
 def borrowdata():
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="snsdforever9",
-        database="borrowingsystem"
-    )
-    
     allData = request.json
     date = allData['date']
-    print(date)
     mycursor = mydb.cursor()
     sql = "SELECT * FROM data WHERE status = 'borrow' AND  DATE(date) = '"+date+"'"
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
-    print(myresult)
     data_list = []
-    order=1
     for x in myresult:
         data = {
             "sequence": x[0],
@@ -463,8 +442,6 @@ def borrowdata():
         }
         data_list.append(data)
 
-        print(data_list)
-
     return jsonify(data_list)
 
 
@@ -474,7 +451,7 @@ def returndata():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
 
@@ -507,7 +484,7 @@ def notreturn():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
     borrow_sql = "SELECT stuff FROM data WHERE status LIKE 'borrow'"
@@ -569,78 +546,17 @@ def notreturn():
 
     return jsonify(data_list)
 
-#borrow stuff from back
-@app.route('/input', methods=['POST'])
-def input():
-    request_data = request.get_json()
-    name = request_data['name']
-    id = request_data["id"] 
-    #stuff = request_data["stuff"]
-    tel = request_data["tel"]
-    string_data = request_data["string_data"]
-    Owner = request_data["Owner"]
-
-    owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
-    mycursor=mydb.cursor()
-    mycursor.execute(owner_sql,(string_data,))
-    myresult = mycursor.fetchall()
-    num =  len(myresult)
-    if num==0:
-        avaliable = "None"
-    else:   
-        avaliable = myresult
-
-    print(avaliable)
-
-    if avaliable[0][0] !="False":
-        database.insert_data(name,id,tel,string_data,Owner)
-
-        sql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
-        mycursor.execute(sql,(string_data,))
-        mydb.commit()
-        return jsonify({'message' : "success"})
-    else:
-        return jsonify({'message' : "The stuff is not avaliable"})
-    
-#return stuff from back
-@app.route('/output', methods=['POST'])
-def output():
-    request_data = request.get_json()
-    string_data = request_data["string_data"]
-    owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
-    mycursor=mydb.cursor()
-    mycursor.execute(owner_sql,(string_data,))
-    myresult = mycursor.fetchall()
-    num =  len(myresult)
-    if num==0:
-        avaliable = "None"
-    else:   
-        avaliable = myresult
-
-    print(avaliable)
-
-    if avaliable[0][0] =="False":
-        database.output_data(string_data)
-
-        sql = "UPDATE user SET avaliable = 'True' WHERE nstda_code = %s"
-        mycursor.execute(sql,(string_data,))
-        mydb.commit()
-        return jsonify({'message' : "success"})
-    else:
-        return jsonify({'message' : "The stuff is not avaliable"})
-
 @app.route('/stuffcheck', methods=['POST'])
 def stuffcheck():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
     mycursor = mydb.cursor()
     allData = request.json
     qr = allData['inputqr']
-    print(qr)
 
     sql = "SELECT * FROM data WHERE qr='"+qr+"'"
     mycursor.execute(sql)
@@ -659,18 +575,15 @@ def stuffcheck():
             "status": x[8]
         }
         data_list.append(data)
-    
-    print(data_list)
 
     return jsonify(data_list)
-
 
 @app.route('/qrdata', methods=['POST'])
 def qrdata():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
     allData = request.json
@@ -702,15 +615,14 @@ def returnyear():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
     allData = request.json
     year = allData['year']
     option = allData['option']
-    print(option)
-    print(type(year))
     mycursor = mydb.cursor()
+
     if option=="return":
         sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND status = 'return' "
         mycursor.execute(sql, (year,))
@@ -755,17 +667,16 @@ def returnmonth():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="snsdforever9",
+        password="Mingming260947",
         database="borrowingsystem"
     )
     allData = request.json
     year = allData['year']
     month = allData['month']
     option = allData['option']
-    print(option)
-    print(type(year))
     mycursor = mydb.cursor()
-
+    #sql = "SELECT * FROM data WHERE DATE(date) LIKE %s"
+    #mycursor.execute(sql, (date,))
     if option=="return":
         sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND MONTH(date) LIKE %s AND status = 'return' "
         mycursor.execute(sql, (year,month,))
@@ -849,8 +760,8 @@ def chartreturn():
 
     return jsonify(data_list)
 
-@app.route('/access', methods=['GET', 'POST'])
-def access():
+@app.route('/accessinfor', methods=['GET', 'POST'])
+def accessinfor():
     if request.method == 'POST':
         error_messages = []
         error=[]
@@ -905,7 +816,6 @@ def access():
                     "status": x[8]
                 }
                 data_list.append(data)
-                print(data_list)
 
             if error_messages:
                 return render_template('accessinformation.html', messages=error_messages,messages2=error)
@@ -913,14 +823,15 @@ def access():
                 return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner,messages2=error)
         else:
             error.append("No QR Code")
-            return render_template('accessinformation.html', messages2=error,messages=error_messages)
+            return render_template('accessinformation.html', messages2=error)
 
-    return render_template('accessinformation.html')
+    return render_template('accessinformation.html', messages=error_messages,messages2=error)
 
-
+    
     
 
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0",5000)
+    app.run (host = os.getenv('IP', "0.0.0.0"),
+            port = int(os.getenv('PORT',4444)))

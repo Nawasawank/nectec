@@ -1,3 +1,192 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Users Record</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      text-align: center;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    #name {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 5px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .go-back a:hover {
+      background-color: #8d8d8d;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+  <script>
+    function funcreturn() {
+      let inputId = document.getElementById('input_id').value;
+
+      fetch('/allborrow', {
+        method: 'POST'
+      })
+        .then(response => response.json())
+        .then(data => {
+          const matchedData = data.find(item => item.id === inputId);
+
+          if (matchedData) {
+            document.getElementById("name").innerHTML = "Name: " + matchedData.name;
+            document.getElementById("name").style.color = "black";
+          } else {
+            document.getElementById("name").innerHTML = "No matching data found.";
+            document.getElementById("name").style.color = "red";
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
+    function funcborrow() {
+      let inputId = document.getElementById('input_id').value;
+
+      fetch('/allborrow', {
+        method: 'POST'
+      })
+        .then(response => response.json())
+        .then(data => {
+          let filteredData = data.filter(item => item.id === inputId);
+
+          let tableBody = document.getElementById('tableBody');
+
+          tableBody.innerHTML = '';
+
+          filteredData.forEach((item, index) => {
+            let row = document.createElement('tr');
+
+            let orderCell = document.createElement('td');
+            orderCell.textContent = index + 1;
+            let stuffCell = document.createElement('td');
+            stuffCell.textContent = item.stuff;
+            let dateCell = document.createElement('td');
+            dateCell.textContent = item.date;
+            let ownerCell = document.createElement('td');
+            ownerCell.textContent = item.owner;
+            let qrCell = document.createElement('td');
+            qrCell.textContent = item.qr;
+            let statusCell = document.createElement('td');
+            statusCell.textContent = item.status;
+
+            row.appendChild(orderCell);
+            row.appendChild(stuffCell);
+            row.appendChild(dateCell);
+            row.appendChild(ownerCell);
+            row.appendChild(qrCell);
+            row.appendChild(statusCell);
+
+            tableBody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  </script>
+</head>
+<body>
+  <h1>User Record</h1>
+  <div class="container">
+    <div class="button-group">
+      <input type="text" id="input_id" placeholder="Enter ID">
+      <button onclick="funcreturn(),funcborrow()">Submit</button>
+    </div>
+    <p><span id="name"></span></p><br>
+    <div class="go-back">
+      <a href="/history">Go Back</a>
+    </div>
+  </div><br>
+  <table>
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Stuff</th>
+        <th>Date</th>
+        <th>Owner</th>
+        <th>Code</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</body>
+</html>
+
+
+=======
 <!DOCTYPE html>
 <html>
 <head>
@@ -193,3 +382,4 @@
 </html>
 
 
+>>>>>>> a0870d73a59b6c8e8fa00a39b1f398e9843e4f84

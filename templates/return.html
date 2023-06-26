@@ -1,3 +1,103 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Borrowing System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+      border: 2px solid #555;
+      border-radius: 5px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 15px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    select {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 15px;
+    }
+
+    input[type="file"] {
+      margin-bottom: 15px;
+      border-radius: 3px;
+    }
+    .go-back {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .go-back a {
+      text-decoration: none;
+      padding: 5px;
+      background-color: #98999b;
+      color: white;
+      border-radius: 20px;
+    }
+
+    .go-back a:hover {
+      background-color: #98999b;
+    }
+  </style>
+</head>
+<body>
+  <h1>Return System</h1>
+  <form action="/successreturn" method="POST" enctype="multipart/form-data">
+    <label for="id">Your ID</label>
+    <input type="text" placeholder="ID" name="id"><br /><br />
+    <label for="id">Reference ID</label>
+    <input type="text" placeholder="reference id" name="ref"><br /><br />
+    <input type="file" name="qr_code" accept=".png, .jpg, .jpeg">
+    <br><br>
+    <input type="submit" value="Submit">
+    <br><br>
+    <div class="go-back">
+      <a href="/">Go Back</a>
+    </div>
+</form>
+
+  <div class="container" style="text-align: center; color: red;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <br>{{msg}}<br>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  </body>
+=======
 <!DOCTYPE html>
 <html>
 <head>
@@ -95,4 +195,5 @@
     {% endwith %}
   </div>
   </body>
+>>>>>>> a0870d73a59b6c8e8fa00a39b1f398e9843e4f84
 </html>
