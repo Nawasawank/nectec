@@ -5,12 +5,17 @@ import os
 
 from pyzbar import pyzbar
 from PIL import Image
+import yaml
+
+with open('local.config', 'r') as file:
+    local_config = yaml.safe_load(file)
+
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Mingming260947'
-app.config['MYSQL_DB'] = 'borrowingsystem'
+app.config['MYSQL_HOST'] = local_config["host"]
+app.config['MYSQL_USER'] = local_config["user"]
+app.config['MYSQL_PASSWORD'] = local_config["password"]
+app.config['MYSQL_DB'] = local_config["database"]
 app.secret_key = 'kf1234'
 
 
