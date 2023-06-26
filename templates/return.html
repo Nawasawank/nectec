@@ -68,10 +68,21 @@
     .go-back a:hover {
       background-color: #98999b;
     }
+    .warning {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+    .container {
+      text-align: center;
+      color: red;
+    }
   </style>
 </head>
 <body>
+  
   <h1>Return System</h1>
+
   <form action="/successreturn" method="POST" enctype="multipart/form-data">
     <label for="id">Your ID</label>
     <input type="text" placeholder="ID" name="id"><br /><br />
@@ -84,16 +95,39 @@
     <div class="go-back">
       <a href="/">Go Back</a>
     </div>
-</form>
+  </form>
+  <script>
+    // Set the value of the JavaScript variables using Jinja templating
+    var warn = "{{ warn }}";
+    var newstuff = "{{ newstuff }}";
+    var newstrdata = "{{ newstrdata }}";
+    var newcheck = "{{ newcheck }}";
 
-  <div class="container" style="text-align: center; color: red;">
+    if (warn) {
+      var correct = true;
+      if (confirm(warn)) {
+        window.location.href = '/successreturn?newstuff=' + encodeURIComponent(newstuff) + '&newstrdata=' + encodeURIComponent(newstrdata) + '&newcheck=' + encodeURIComponent(newcheck)+'&correct=' + encodeURIComponent(correct);
+      }
+    }
+  
+    function handleSubmit() {
+      window.location.href = '/successreturn?newstuff=' + encodeURIComponent(newstuff) + '&newstrdata=' + encodeURIComponent(newstrdata) + '&newcheck=' + encodeURIComponent(newcheck);
+    }
+    document.querySelector('form').onsubmit = handleSubmit;
+  </script>
+  
+  
+  
+  <div class="container">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for msg in messages %}
-          <br>{{msg}}<br>
+          <div>{{ msg }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
   </div>
-  </body>
+
+</body>
 </html>
+

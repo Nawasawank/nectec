@@ -6,17 +6,14 @@ import os
 
 from pyzbar import pyzbar
 from PIL import Image
-import yaml
 
-with open('local.config', 'r') as file:
-    local_config = yaml.safe_load(file)
 
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = local_config["host"]
-app.config['MYSQL_USER'] = local_config["user"]
-app.config['MYSQL_PASSWORD'] = local_config["password"]
-app.config['MYSQL_DB'] = local_config["database"]
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'snsdforever9'
+app.config['MYSQL_DB'] = 'borrowingsystem'
 app.secret_key = 'kf1234'
 
 
@@ -70,7 +67,7 @@ def scan_qr_code():
         id = request.form['id']
         name = request.form['name']
         tel = request.form['tel']
-        checkout = request.form['day']
+        day = request.form['day']
         ref = request.form['ref']
 
         mycursor=mydb.cursor()
@@ -157,15 +154,15 @@ def scan_qr_code():
                 num=len(name_user)
                 if avaliable[0][0] =="True":
 
-                    checkoutdate = (now + timedelta(days=int(checkout))).strftime('%Y-%m-%d ')
+                    checkoutdate = (now + timedelta(days=int(day))).strftime('%Y-%m-%d ')
                     print(checkoutdate)
 
 
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s)"
-                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow",ref,checkoutdate)
+                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout,day) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s,%s)"
+                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow",ref,checkoutdate,day)
                     mycursor.execute(sql, values)
                     mydb.commit()
                 elif avaliable=="None":
@@ -174,9 +171,16 @@ def scan_qr_code():
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
                     mydb.commit()
-                        
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s)"
-                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow")
+                    
+                    checkoutdate = (now + timedelta(days=int(day))).strftime('%Y-%m-%d ')
+                    print(checkoutdate)
+
+
+                    nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
+                    mycursor.execute(nsql,(string_data,))
+                    mydb.commit()
+                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout,day) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s,%s)"
+                    values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow",ref,checkoutdate,day)
                     mycursor.execute(sql, values)
                     mydb.commit()
                 else:
@@ -190,11 +194,14 @@ def scan_qr_code():
         
         return render_template('successborrow.html',newstuff=Stuff,newstrdata=string_data,newcheck = check)
 
-@app.route('/successreturn', methods=['POST'])
-def succesreturn():
+@app.route('/successreturn', methods=['GET', 'POST'])
+def successreturn():
     string_data = None
     error_messages = []
-    try :
+    Stuff = None  # Initialize with default value
+    check = False  # Initialize with default value
+    
+    try:
         error_messages = []
         # Get the uploaded file from the form
         qr_code = request.files['qr_code']
@@ -212,30 +219,31 @@ def succesreturn():
     # Extract the string data
     if len(decoded_data) > 0:
         string_data = decoded_data[0].data.decode('utf-8')
-    
+
     if request.method == 'POST':
         id = request.form['id']
-        mycursor=mydb.cursor()
+        ref = request.form['ref']
+        mycursor = mydb.cursor()
         now = datetime.datetime.now()
 
         if len(id) != 6:
             error_messages.append("ID must be 6 numbers")
 
-        #เชื่อมเจ้าของ
+        # เชื่อมเจ้าของ
         owner_sql = "SELECT nstda_code FROM user"
         mycursor.execute(owner_sql)
         owner_myresult = mycursor.fetchall()
         count = 0
         num = len(owner_myresult)
         for i in range(num):
-            if string_data==owner_myresult[i][0]:
+            if string_data == owner_myresult[i][0]:
                 count = int(i)
         owner_sql = "SELECT last_name FROM user"
         mycursor.execute(owner_sql)
         owner_myresult = mycursor.fetchall()
         Owner = owner_myresult[count][0]
 
-        #connect to stuff
+        # connect to stuff
         stuff_sql = "SELECT first_name FROM user"
         mycursor.execute(stuff_sql)
         stuff_myresult = mycursor.fetchall()
@@ -251,102 +259,113 @@ def succesreturn():
                 check = True
                 break
 
-        #อัพเดทสถานะด้วยการเช้ครหัส
+        # อัพเดทสถานะด้วยการเช้ครหัส
         sql = "SELECT nstda_code FROM user"
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
-        num = len(myresult) 
+        num = len(myresult)
         count = 0
         for i in range(num):
-            if string_data==myresult[i][0]:
+            if string_data == myresult[i][0]:
                 count = i
 
-       
         owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
-        mycursor.execute(owner_sql,(string_data,))
+        mycursor.execute(owner_sql, (string_data,))
         myresult = mycursor.fetchall()
-        num =  len(myresult)
-        if num==0:
+        num = len(myresult)
+        if num == 0:
             avaliable = "None"
-        else:   
+        else:
             avaliable = myresult
 
-        
-        #เช็คว่าชื่อยืมคืน
-        namesql="SELECT name from data WHERE qr=%s"
-        mycursor.execute(namesql,(string_data,))
+        # เช็คว่าชื่อยืมคืน
+        namesql = "SELECT name from data WHERE qr=%s"
+        mycursor.execute(namesql, (string_data,))
         myresult = mycursor.fetchall()
-        name_user=myresult
+        name_user = myresult
 
-        #เช้คลำดับ
+        # เช้คลำดับ
         sql = "SELECT id FROM data"
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
         num = len(myresult)
-        sequence = num+1
+        sequence = num + 1
 
-        #checkid
-        namesql="SELECT id from data WHERE qr=%s"
-        mycursor.execute(namesql,(string_data,))
+        # checkid
+        namesql = "SELECT id from data WHERE qr=%s"
+        mycursor.execute(namesql, (string_data,))
         myresult = mycursor.fetchall()
-        id_user=myresult
+        id_user = myresult
 
-        if avaliable !="None":
-            num=len(name_user)
-            if avaliable[0][0] =="False":
-                if id_user[-1][0] == id and len(id)==6 :
-                    namesql = "SELECT name FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
+
+        if avaliable != "None":
+            num = len(name_user)
+            if avaliable[0][0] == "False":
+                if id_user[-1][0] == id and len(id) == 6:
+                    
+                    daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
                     mycursor = mydb.cursor()
-                    mycursor.execute(namesql, (string_data,))
-                    name = mycursor.fetchall()
-                    name = name[0][0]
+                    mycursor.execute(daysql, (string_data,))
+                    day = mycursor.fetchall()
+                    day = day[0][0]
 
-                    idsql = "SELECT id FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
+                    outsql = "SELECT checkout FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
                     mycursor = mydb.cursor()
-                    mycursor.execute(idsql, (string_data,))
-                    id = mycursor.fetchall()
-                    id = id[0][0]
+                    mycursor.execute(outsql, (string_data,))
+                    checkout = mycursor.fetchall()
+                    checkout = checkout[0][0]
+                    print(checkout)
 
-                    telsql = "SELECT tel FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
+                    sql = """SELECT name, id, tel, stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow'
+                          AND date = (SELECT MAX(date) FROM data WHERE qr LIKE %s AND status LIKE 'borrow') LIMIT 1 """
                     mycursor = mydb.cursor()
-                    mycursor.execute(telsql, (string_data,))
-                    tel = mycursor.fetchall()
-                    tel = tel[0][0]
+                    mycursor.execute(sql, (string_data, string_data))
+                    result = mycursor.fetchall()
 
-                    stuffsql = "SELECT stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
-                    mycursor = mydb.cursor()
-                    mycursor.execute(stuffsql, (string_data,))
-                    stuff = mycursor.fetchall()
-                    stuff = stuff[0][0]
+                    if result:
+                        name, id, tel, stuff = result[0]
+                    else:
+                        name = "Unknown"
+                        id = "Unknown"
+                        tel = "Unknown"
+                        stuff = "Unknown"
 
-
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s)"
-                    values = (sequence,id, name, stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"return")
-                    mycursor.execute(sql, values)
+                    insert_sql = """INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    values = (sequence, id, name, stuff, tel, now.strftime('%Y-%m-%d %H:%M:%S'), string_data, Owner, "return", ref)
+                    mycursor.execute(insert_sql, values)
                     mydb.commit()
+
 
                     sql = "UPDATE user SET avaliable = 'True' WHERE nstda_code = %s"
-                    mycursor.execute(sql,(string_data,))
+                    mycursor.execute(sql, (string_data,))
                     mydb.commit()
-                elif avaliable==[]:
-                    check=False
+
+                    if (now + timedelta(days=int(day))).strftime('%Y-%m-%d') > checkout:
+                        print("Late return")
+                        warn = "Late Return"
+                        return render_template('return.html', warn=warn,newstuff=Stuff, newstrdata=string_data, newcheck=check)
+                elif avaliable == []:
+                    check = False
                 else:
-                    if len(id_user)==0:
+                    if len(id_user) == 0:
                         error_messages.append("have nothing to return")
                     else:
                         error_messages.append("incorrect id")
             else:
                 error_messages.append("have nothing to return")
-      
-     
-                
-            
+
         if len(error_messages) > 0:
             for error in error_messages:
                 flash(error)
             return render_template('return.html', messages=error_messages)
         
-        return render_template('successreturn.html',newstuff=Stuff,newstrdata=string_data,newcheck = check)
+        
+        return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
+
+    return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
+    
+
 
 @app.route('/history', methods=['GET','POST'])
 def history():
