@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request,flash,jsonify,json
+from flask import Flask, render_template,request,flash,jsonify
 import mysql.connector
 import datetime
 import database
@@ -176,7 +176,7 @@ def scan_qr_code():
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql,(string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s)"
+                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s)"
                     values = (sequence,id, name, Stuff,tel,now.strftime('%Y-%m-%d %H:%M:%S'),string_data,Owner,"borrow")
                     mycursor.execute(sql, values)
                     mydb.commit()
