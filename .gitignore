@@ -1,2 +1,6 @@
 # local configuration file
 local.config
+
+# environment
+env/
+requirements.txt
