@@ -79,9 +79,13 @@ def scan_qr_code():
         if len(tel) != 10:
             error_messages.append("Your number must be 10 digits")
         try:
-            int(day)
-        except:
-            error_messages.append("number only")
+            day = int(day)
+            if day > 0:
+                print("valid")
+            else:
+                error_messages.append("Number must be greater than 0")
+        except ValueError:
+            error_messages.append("Invalid input, please enter a number")
 
         
         #เชื่อมเจ้าของ
