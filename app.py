@@ -78,6 +78,10 @@ def scan_qr_code():
             error_messages.append("Name must be at least 2 characters")
         if len(tel) != 10:
             error_messages.append("Your number must be 10 digits")
+        try:
+            int(day)
+        except:
+            error_messages.append("number only")
 
         
         #เชื่อมเจ้าของ
@@ -814,8 +818,9 @@ def accessinfor():
                 error_messages.append("No data found")
 
             data_list = []
-            for x in myresult:
+            for index, x in enumerate(myresult, start=1):
                 data = {
+                    "order": index,
                     "sequence": x[0],
                     "id": x[1],
                     "name": x[2],
