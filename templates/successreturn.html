@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Successfully returned</title>
+    <title>Successfully return</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,6 +35,7 @@
     const newcheck = params.get('newcheck');
     const correct = params.get('correct');
     
+    console.log(newstuff)
     if (correct==="true"){
         if (newcheck) {
         document.write('<h1>Successfully returned</h1>');
@@ -52,10 +53,12 @@
     {% elif newcheck == False %}
         <h1>Unsuccessfully returned</h1>
         <p>No QR Code found or failed to decode.</p>
+    {% elif newcheckk == True %}
+        <h1>Successfully returned</h1>
+        <p>Return List: {{ newstuff }}</p>
     {% else %}
         <p></p>
     {% endif %}
-
     <a href="/">Finish</a>
 </body>
 </html>

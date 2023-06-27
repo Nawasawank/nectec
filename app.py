@@ -200,7 +200,7 @@ def successreturn():
     error_messages = []
     Stuff = None  # Initialize with default value
     check = False  # Initialize with default value
-    checknotalert = 0
+    checknotalert = True
     
     try:
         error_messages = []
@@ -355,15 +355,16 @@ def successreturn():
                             print(future_date)
                             if future_date <= now_str:
                                 checknotalert = False
-                                print("Late return")
                                 warn = "Late Return"
-                                return render_template('return.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check)
+                                alertt="Do you want to borrow"+stuff+"?"
+                                return render_template('return.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check,alertt=alertt)
+                            else:
+                                alertt = "Do you want to borrow"+stuff+"?"
+                                return render_template('return.html', alertt=alertt, newstuff=Stuff, newstrdata=string_data, newcheck=check)
                                 
                            
                         except ValueError:
                             warn = "Invalid day value"
-
-                    
 
                 elif avaliable == []:
                     check = False
@@ -380,7 +381,7 @@ def successreturn():
                 flash(error)
             return render_template('return.html', messages=error_messages)
         
-        if(checknotalert==True):
+        if(checknotalert!=True):
             return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
         
     return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck="notalert")
