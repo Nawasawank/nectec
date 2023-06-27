@@ -26,13 +26,13 @@
     </style>
 </head>
 <body>
-    {% if newcheck %}
-        <h1>Successfully borrowed</h1>
-        <p>Borrowing List: {{ newstuff }}</p>
-    {% else %}
-        <h1>Unsuccessfully borrowed</h1>
-        <p>No QR Code found or failed to decode.</p>
-    {% endif %}
+        {% if newcheck %}
+            <h1>Successfully borrowed</h1>
+            <p>Borrowing List: {{ newstuff }}</p>
+        {% else %}
+            <h1>Unsuccessfully borrowed</h1>
+            <p>No QR Code found or failed to decode.</p>
+        {% endif %}
     <a href="/">Finish</a>
 </body>
 </html>

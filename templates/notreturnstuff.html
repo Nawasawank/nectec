@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Users Record</title>
+  <title>Not Return Stuff</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +13,6 @@
       text-align: center;
       margin: 20px;
     }
-
 
     table {
       border-collapse: collapse;
@@ -51,61 +50,81 @@
   </style>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-  fetch('/notreturn', {
-    method: 'POST'
-  })
-    .then(response => response.json())
-    .then(data => {
-      let tableBody = document.getElementById('tableBody');
-      tableBody.innerHTML = '';
+      fetch('/notreturn', {
+        method: 'POST'
+      })
+        .then(response => response.json())
+        .then(data => {
+          let tableBody = document.getElementById('tableBody');
+          tableBody.innerHTML = '';
 
-      if (data.length === 0) {
-        let row = document.createElement('tr');
-        let messageCell = document.createElement('td');
-        messageCell.setAttribute('colspan', '7');
-        messageCell.style.color = 'red';
-        messageCell.textContent = 'No data found.';
-        row.appendChild(messageCell);
-        tableBody.appendChild(row);
-      } else {
-        data.forEach((item, index) => {
-          let row = document.createElement('tr');
+          if (data.length === 0) {
+            let row = document.createElement('tr');
+            let messageCell = document.createElement('td');
+            messageCell.setAttribute('colspan', '9');
+            messageCell.style.color = 'red';
+            messageCell.textContent = 'No data found.';
+            row.appendChild(messageCell);
+            tableBody.appendChild(row);
+          } else {
+            data.forEach((item, index) => {
+              let check = item.check;
+              let row = document.createElement('tr');
+              let refCell = document.createElement('td');
+              refCell.textContent = item.ref;
+              let dayCell = document.createElement('td');
+              dayCell.textContent = item.day;
+              let dateCell = document.createElement('td');
+              dateCell.textContent = item.date;
+              let orderCell = document.createElement('td');
+              orderCell.textContent = index + 1;
+              let idCell = document.createElement('td');
+              idCell.textContent = item.id;
+              let stuffCell = document.createElement('td');
+              stuffCell.textContent = item.stuff;
+              let ownerCell = document.createElement('td');
+              ownerCell.textContent = item.owner;
+              let qrCell = document.createElement('td');
+              qrCell.textContent = item.qr;
+              let nameCell = document.createElement('td');
+              nameCell.textContent = item.name;
+              if (check === false) {
+                orderCell.style.color = 'red';
+                idCell.style.color = 'red';
+                nameCell.style.color = 'red';
+                stuffCell.style.color = 'red';
+                dateCell.style.color = 'red';
+                ownerCell.style.color = 'red';
+                qrCell.style.color = 'red';
+                refCell.style.color = 'red';
+                dayCell.style.color = 'red';
+              } 
 
-          let orderCell = document.createElement('td');
-          orderCell.textContent = index + 1;
-          let idCell = document.createElement('td');
-          idCell.textContent = item.id;
-          let stuffCell = document.createElement('td');
-          stuffCell.textContent = item.stuff;
-          let dateCell = document.createElement('td');
-          dateCell.textContent = item.date;
-          let ownerCell = document.createElement('td');
-          ownerCell.textContent = item.owner;
-          let qrCell = document.createElement('td');
-          qrCell.textContent = item.qr;
-          let nameCell = document.createElement('td');
-          nameCell.textContent = item.name;
-
-          row.appendChild(orderCell);
-          row.appendChild(idCell);
-          row.appendChild(nameCell);
-          row.appendChild(stuffCell);
-          row.appendChild(dateCell);
-          row.appendChild(ownerCell);
-          row.appendChild(qrCell);
-
-          tableBody.appendChild(row);
+              row.appendChild(orderCell);
+              row.appendChild(idCell);
+              row.appendChild(nameCell);
+              row.appendChild(stuffCell);
+              row.appendChild(dateCell);
+              row.appendChild(ownerCell);
+              row.appendChild(qrCell);
+              row.appendChild(refCell);
+              row.appendChild(dayCell);
+              tableBody.appendChild(row);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
         });
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
     });
-});
   </script>
 </head>
 <body>
   <h1>Not Return Stuff</h1>
+  <div style="text-align: center;">
+    <label style="color: red; font-size: 14px;">RED - LATE</label><br /><br />
+    <label style="font-size: 14px;">BLACK - NORMAL</label><br /><br />
+  </div>
   <table>
     <thead>
       <tr>
@@ -116,6 +135,8 @@
         <th>Date Borrow</th>
         <th>Owner</th>
         <th>Code</th>
+        <th>Reference</th>
+        <th>Checkout</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>

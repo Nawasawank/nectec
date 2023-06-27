@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Successfully borrowed</title>
+    <title>Successfully returned</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,12 +46,14 @@
     }
   </script>
 <body>
-    {% if newcheck %}
+    {% if newcheck == True %}
         <h1>Successfully returned</h1>
         <p>Return List: {{ newstuff }}</p>
-{% else %}
+    {% elif newcheck == False %}
         <h1>Unsuccessfully returned</h1>
         <p>No QR Code found or failed to decode.</p>
+    {% else %}
+        <p></p>
     {% endif %}
 
     <a href="/">Finish</a>

@@ -200,6 +200,7 @@ def successreturn():
     error_messages = []
     Stuff = None  # Initialize with default value
     check = False  # Initialize with default value
+    checkalert = 0
     
     try:
         error_messages = []
@@ -297,10 +298,11 @@ def successreturn():
         myresult = mycursor.fetchall()
         id_user = myresult
 
-
+        
         if avaliable != "None":
             num = len(name_user)
             if avaliable[0][0] == "False":
+                checkalert=True
                 if id_user[-1][0] == id and len(id) == 6:
                     
                     daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
@@ -314,7 +316,7 @@ def successreturn():
                     mycursor.execute(outsql, (string_data,))
                     checkout = mycursor.fetchall()
                     checkout = checkout[0][0]
-                    print(checkout)
+                    #print(checkout)
 
                     sql = """SELECT name, id, tel, stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow'
                           AND date = (SELECT MAX(date) FROM data WHERE qr LIKE %s AND status LIKE 'borrow') LIMIT 1 """
@@ -341,10 +343,28 @@ def successreturn():
                     mycursor.execute(sql, (string_data,))
                     mydb.commit()
 
-                    if (now + timedelta(days=int(day))).strftime('%Y-%m-%d') > checkout:
-                        print("Late return")
-                        warn = "Late Return"
-                        return render_template('return.html', warn=warn,newstuff=Stuff, newstrdata=string_data, newcheck=check)
+                    now = datetime.datetime.now()
+                    now_str = now.strftime('%Y-%m-%d')  # Convert datetime object to string
+
+                    if day is not None:
+                        try:
+    
+                            day_int = int(day)
+                            future_date = (now + timedelta(days=day_int)).strftime('%Y-%m-%d')
+                            print(now_str)
+                            print(future_date)
+                            if future_date < now_str:
+                                checkalert = False
+                                print("Late return")
+                                warn = "Late Return"
+                                return render_template('return.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check)
+                                
+                           
+                        except ValueError:
+                            warn = "Invalid day value"
+
+                    
+
                 elif avaliable == []:
                     check = False
                 else:
@@ -360,11 +380,10 @@ def successreturn():
                 flash(error)
             return render_template('return.html', messages=error_messages)
         
+        if(checkalert==True):
+            return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
         
-        return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
-
-    return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
-    
+    return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck="notalert")
 
 
 @app.route('/history', methods=['GET','POST'])
@@ -488,6 +507,7 @@ def returndata():
     return jsonify(data_list)
 
 #collect data who not return
+#collect data who not return
 @app.route('/notreturn', methods=['POST'])
 def notreturn():
     mydb = mysql.connector.connect(
@@ -541,6 +561,12 @@ def notreturn():
         inner_result = mycursor.fetchall()
     
         for x in inner_result:
+            currentTime = datetime.datetime.now();
+            if x[10] < str(currentTime):
+                Check = False
+            else:
+                Check = True
+            
             data = {
                 "sequence": x[0],
                 "id": x[1],
@@ -549,41 +575,16 @@ def notreturn():
                 "stuff": x[4],
                 "date": x[5],
                 "owner": x[6],
-                "qr": x[7]
-            }
+                "qr": x[7],
+                "ref": x[9],
+                "day": x[10],
+                "check": Check
+                }
             data_list.append(data)
-
-    return jsonify(data_list)
-
-@app.route('/stuffcheck', methods=['POST'])
-def stuffcheck():
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="snsdforever9",
-        database="borrowingsystem"
-    )
-    mycursor = mydb.cursor()
-    allData = request.json
-    qr = allData['inputqr']
-
-    sql = "SELECT * FROM data WHERE qr='"+qr+"'"
-    mycursor.execute(sql)
-    myresult = mycursor.fetchall()
-
-    data_list = []
-    for x in myresult:
-        data = {
-            "id": x[1],
-            "name": x[2],
-            "tel": x[3],
-            "stuff": x[4],
-            "date": x[5],
-            "owner": x[6],
-            "qr": x[7],
-            "status": x[8]
-        }
-        data_list.append(data)
+            print(x[10])
+            print(currentTime)
+            print(Check)
+            
 
     return jsonify(data_list)
 
