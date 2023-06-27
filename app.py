@@ -200,7 +200,7 @@ def successreturn():
     error_messages = []
     Stuff = None  # Initialize with default value
     check = False  # Initialize with default value
-    checkalert = 0
+    checknotalert = 0
     
     try:
         error_messages = []
@@ -302,7 +302,7 @@ def successreturn():
         if avaliable != "None":
             num = len(name_user)
             if avaliable[0][0] == "False":
-                checkalert=True
+                checknotalert=True
                 if id_user[-1][0] == id and len(id) == 6:
                     
                     daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
@@ -353,8 +353,8 @@ def successreturn():
                             future_date = (now + timedelta(days=day_int)).strftime('%Y-%m-%d')
                             print(now_str)
                             print(future_date)
-                            if future_date < now_str:
-                                checkalert = False
+                            if future_date <= now_str:
+                                checknotalert = False
                                 print("Late return")
                                 warn = "Late Return"
                                 return render_template('return.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check)
@@ -380,7 +380,7 @@ def successreturn():
                 flash(error)
             return render_template('return.html', messages=error_messages)
         
-        if(checkalert==True):
+        if(checknotalert==True):
             return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
         
     return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck="notalert")
