@@ -149,6 +149,7 @@
   <table>
     <thead>
       <tr>
+        <th>Order</th>
         <th>ID</th>
         <th>Borrower</th>
         <th>Tel</th>
@@ -160,6 +161,7 @@
       {% if data_list %}
       {% for data in data_list %}
       <tr>
+        <td>{{ data.order }}</td>
         <td>{{ data.id }}</td>
         <td>{{ data.name }}</td>
         <td>{{ data.tel }}</td>
