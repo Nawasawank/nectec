@@ -25,40 +25,59 @@
         }
         .warning-list {
             color: red;
-    }
+        }
     </style>
 </head>
 <script>
-    const params = new URLSearchParams(window.location.search);
-    const newstuff = params.get('newstuff');
-    const newstrdata = params.get('newstrdata');
-    const newcheck = params.get('newcheck');
-    const correct = params.get('correct');
-    
-    console.log(newstuff)
-    if (correct==="true"){
-        if (newcheck) {
-        document.write('<h1>Successfully returned</h1>');
-        document.write('<p>Return List: ' + newstuff + '</p>');
+    var warn = "{{ warn }}";
+    var newstuff = "{{ newstuff }}";
+    var newstrdata = "{{ newstrdata }}";
+    var newcheck = "{{ newcheck }}";
+    var alertt = "{{ alertt }}";
+    var checkcancel = "confirm";
+
+    var correct = true; // Initialize 'correct' as false
+
+    if (warn && alertt) {
+        if (confirm(warn)) {
+            confirm(alertt);
         } else {
-        document.write('<h1>Unsuccessfully returned</h1>');
-        document.write('<p>No QR Code found or failed to decode.</p>');
+            checkcancel = "cancel";
+        }
+    } else if (alertt) {
+        if (confirm(alertt)) {
+            // Proceed with normal flow
+        } else {
+            checkcancel = "cancel";
         }
     }
-  </script>
+
+    console.log(correct);
+    console.log(newstuff);
+    console.log(checkcancel);
+    if (correct === true) {
+        if (checkcancel === "confirm") {
+            if (newcheck) {
+                document.write('<h1>Successfully returned</h1>');
+                document.write('<p>Return List: ' + newstuff + '</p>');
+
+            } else {
+                document.write('<h1>Unsuccessfully returned</h1>');
+                document.write('<p>No QR Code found or failed to decode.</p>');
+            }
+        } else {
+            window.location.href = "/return";
+        }
+    } else {
+        document.write('<h1>Unsuccessfully returned</h1>');
+        document.write('<p>No QR Code found or failed to decode.</p>');
+    }
+</script>
+
 <body>
-    {% if newcheck == True %}
-        <h1>Successfully returned</h1>
-        <p>Return List: {{ newstuff }}</p>
-    {% elif newcheck == False %}
-        <h1>Unsuccessfully returned</h1>
-        <p>No QR Code found or failed to decode.</p>
-    {% elif newcheckk == True %}
-        <h1>Successfully returned</h1>
-        <p>Return List: {{ newstuff }}</p>
-    {% else %}
-        <p></p>
-    {% endif %}
     <a href="/">Finish</a>
 </body>
 </html>
+
+
+
