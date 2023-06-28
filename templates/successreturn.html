@@ -34,7 +34,7 @@
     var newstrdata = "{{ newstrdata }}";
     var newcheck = "{{ newcheck }}";
     var alertt = "{{ alertt }}";
-    var checkcancel = "confirm";
+    var checkcancel = "";
 
     var correct = true; // Initialize 'correct' as false
 
@@ -43,12 +43,14 @@
             confirm(alertt);
         } else {
             checkcancel = "cancel";
+            window.location.href = "/return" ;
         }
     } else if (alertt) {
         if (confirm(alertt)) {
             // Proceed with normal flow
         } else {
             checkcancel = "cancel";
+            window.location.href = "/return";
         }
     }
 
@@ -56,21 +58,13 @@
     console.log(newstuff);
     console.log(checkcancel);
     if (correct === true) {
-        if (checkcancel === "confirm") {
-            if (newcheck) {
-                document.write('<h1>Successfully returned</h1>');
-                document.write('<p>Return List: ' + newstuff + '</p>');
-
-            } else {
-                document.write('<h1>Unsuccessfully returned</h1>');
-                document.write('<p>No QR Code found or failed to decode.</p>');
-            }
+        if (newcheck) {
+            document.write('<h1>Successfully returned</h1>');
+            document.write('<p>Return List: ' + newstuff + '</p>');
         } else {
-            window.location.href = "/return";
+            document.write('<h1>Unsuccessfully returned</h1>');
+            document.write('<p>No QR Code found or failed to decode.</p>');
         }
-    } else {
-        document.write('<h1>Unsuccessfully returned</h1>');
-        document.write('<p>No QR Code found or failed to decode.</p>');
     }
 </script>
 
@@ -78,6 +72,5 @@
     <a href="/">Finish</a>
 </body>
 </html>
-
 
 
