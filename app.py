@@ -24,15 +24,18 @@ mydb = mysql.connector.connect(
     database=app.config['MYSQL_DB']
 )
 
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+    
 
 @app.route('/borrow', methods=['POST'])
 def borrow():
     return render_template('borrow.html')
 
-@app.route('/return', methods=['POST'])
+@app.route('/return', methods=['GET','POST'])
 def Return():
     return render_template('return.html')
 
@@ -208,8 +211,8 @@ def successreturn():
     error_messages = []
     Stuff = None  # Initialize with default value
     check = False  # Initialize with default value
-    checknotalert = True
-    
+    #checkcancel = request.form.get('checkcancel')
+    #print(checkcancel)
     try:
         error_messages = []
         # Get the uploaded file from the form
@@ -310,7 +313,6 @@ def successreturn():
         if avaliable != "None":
             num = len(name_user)
             if avaliable[0][0] == "False":
-                checknotalert=True
                 if id_user[-1][0] == id and len(id) == 6:
                     
                     daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
@@ -339,6 +341,8 @@ def successreturn():
                         id = "Unknown"
                         tel = "Unknown"
                         stuff = "Unknown"
+                        
+                    print(id)
 
                     insert_sql = """INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -361,19 +365,20 @@ def successreturn():
                             future_date = (now + timedelta(days=day_int)).strftime('%Y-%m-%d')
                             print(now_str)
                             print(future_date)
-                            if future_date <= now_str:
-                                checknotalert = False
-                                warn = "Late Return"
-                                alertt="Do you want to borrow"+stuff+"?"
-                                return render_template('return.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check,alertt=alertt)
-                            else:
-                                alertt = "Do you want to borrow"+stuff+"?"
-                                return render_template('return.html', alertt=alertt, newstuff=Stuff, newstrdata=string_data, newcheck=check)
-                                
+
+                            if stuff != None:
+                                if future_date <= now_str:
+                                    checknotalert = False
+                                    warn = "Late Return"
+                                    alertt="Do you want to return"+stuff+"?"
+                                    return render_template('successreturn.html', warn=warn, newstuff=Stuff, newstrdata=string_data, newcheck=check,alertt=alertt)
+                                else:
+                                    alertt = "Do you want to return"+stuff+"?"
+                                    return render_template('successreturn.html', alertt=alertt, newstuff=Stuff, newstrdata=string_data, newcheck=check)
                            
                         except ValueError:
                             warn = "Invalid day value"
-
+                    
                 elif avaliable == []:
                     check = False
                 else:
@@ -388,11 +393,8 @@ def successreturn():
             for error in error_messages:
                 flash(error)
             return render_template('return.html', messages=error_messages)
-        
-        if(checknotalert!=True):
-            return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
-        
-    return render_template('successreturn.html', newstuff=Stuff, newstrdata=string_data, newcheck="notalert")
+    
+    return render_template('successreturn.html')
 
 
 @app.route('/history', methods=['GET','POST'])
