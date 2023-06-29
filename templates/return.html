@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Return System</title>
   <style>
@@ -42,6 +43,7 @@
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+
     select {
       width: 100%;
       padding: 5px;
@@ -52,6 +54,7 @@
       margin-bottom: 15px;
       border-radius: 3px;
     }
+
     .go-back {
       text-align: center;
       margin-bottom: 10px;
@@ -68,19 +71,22 @@
     .go-back a:hover {
       background-color: #98999b;
     }
+
     .warning {
       text-align: center;
       color: red;
       font-weight: bold;
     }
+
     .container {
       text-align: center;
       color: red;
     }
   </style>
 </head>
+
 <body>
-  
+
   <h1>Return System</h1>
 
   <form action="/successreturn" method="POST" enctype="multipart/form-data">
@@ -96,17 +102,19 @@
       <a href="/">Go Back</a>
     </div>
   </form>
-  
+
+
   <div class="container">
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for msg in messages %}
-          <div>{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
+    {% if messages %}
+    {% for msg in messages %}
+    <div>{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
   </div>
 </body>
+
 </html>
 
 

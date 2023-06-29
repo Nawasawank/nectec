@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Successfully return</title>
     <style>
@@ -23,6 +24,7 @@
             color: #0088cc;
             text-decoration: none;
         }
+
         .warning-list {
             color: red;
         }
@@ -35,19 +37,26 @@
     var newcheck = "{{ newcheck }}";
     var alertt = "{{ alertt }}";
     var checkcancel = "";
-
     var correct = true; // Initialize 'correct' as false
+
 
     if (warn && alertt) {
         if (confirm(warn)) {
-            confirm(alertt);
+            if (confirm(alertt)) {
+                fetch('/confirm')
+                    .then(response => response.json())
+                    .then(data => console.log(data));
+            }
         } else {
             checkcancel = "cancel";
-            window.location.href = "/return" ;
+            window.location.href = "/return";
         }
     } else if (alertt) {
         if (confirm(alertt)) {
-            // Proceed with normal flow
+            fetch('/confirm')
+            .then(response => response.json())
+            .then(data => console.log(data));
+
         } else {
             checkcancel = "cancel";
             window.location.href = "/return";
@@ -71,6 +80,7 @@
 <body>
     <a href="/">Finish</a>
 </body>
+
 </html>
 
 

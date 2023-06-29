@@ -7,7 +7,7 @@ db=mysql.connector.connect(
 
 cursor=db.cursor()
 
-query="DELETE FROM data WHERE id = '333333'"
+query="DELETE FROM data WHERE id = '555555'"
 cursor.execute(query)
 db.commit()
 
