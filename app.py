@@ -322,7 +322,6 @@ def successreturn():
                     mycursor.execute(outsql, (string_data,))
                     checkout = mycursor.fetchall()
                     checkout = checkout[0][0]
-                    # print(checkout)
 
                     sql = """SELECT name, id, tel, stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow'
                           AND date = (SELECT MAX(date) FROM data WHERE qr LIKE %s AND status LIKE 'borrow') LIMIT 1 """
@@ -366,14 +365,12 @@ def successreturn():
 
                             if stuff != None:
                                 if future_date < now_str:
-                                    print(1150)
                                     checknotalert = False
                                     warn = "Late Return"
                                     alertt = "Do you want to return"+stuff+"?"
                                     return render_template('successreturn.html', warn=warn, newstuff=Stuff, newstrdata=string_data,
                                                            newcheck=check, alertt=alertt,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
                                 else:
-                                    print(6675)
                                     alertt = "Do you want to return"+stuff+"?"
                                     print(insert_sql)
                                     print( values)
