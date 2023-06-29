@@ -3,7 +3,6 @@ import mysql.connector
 import datetime
 from datetime import timedelta
 import os
-from flask_session import Session 
 
 from pyzbar import pyzbar
 from PIL import Image
@@ -39,32 +38,21 @@ def borrow():
 def Return():
     return render_template('return.html')
 
-
 @app.route('/successborrow', methods=['POST'])
 def scan_qr_code():
     error_messages = []
-    try:
-        # Get the uploaded file from the form
-        qr_code = request.files['qr_code']
-        # Open the uploaded file
-        image = Image.open(qr_code)
 
-        # Convert the image to grayscale
+    try:
+        qr_code = request.files['qr_code']
+        image = Image.open(qr_code)
         grayscale_image = image.convert('L')
-        # Decode the QR code
         decoded_data = pyzbar.decode(grayscale_image)
     except:
         decoded_data = []
-        error_messages.append("Insert Qr Code")
+        error_messages.append("Insert QR Code")
 
-    # Extract the string data
-    print(decoded_data)
-    string_data = None
-    check = True
-    if len(decoded_data) > 0:
-        string_data = decoded_data[0].data.decode('utf-8')
-    else:
-        check = False
+    string_data = decoded_data[0].data.decode('utf-8') if len(decoded_data) > 0 else None
+    check = True if len(decoded_data) > 0 else False
 
     if request.method == 'POST':
         id = request.form['id']
@@ -75,101 +63,62 @@ def scan_qr_code():
 
         mycursor = mydb.cursor()
         now = datetime.datetime.now()
+
         if len(id) != 6:
             error_messages.append("ID must be 6 numbers")
         if len(name) < 2:
             error_messages.append("Name must be at least 2 characters")
         if len(tel) != 10:
             error_messages.append("Your number must be 10 digits")
+
         try:
             day = int(day)
-            if day > 0:
-                print("valid")
-            else:
+            if day <= 0:
                 error_messages.append("Number must be greater than 0")
         except ValueError:
             error_messages.append("Invalid input, please enter a number")
 
-        # เชื่อมเจ้าของ
-        owner_sql = "SELECT nstda_code FROM user"
+        owner_sql = "SELECT nstda_code, last_name FROM user"
         mycursor.execute(owner_sql)
         owner_myresult = mycursor.fetchall()
-        count = 0
-        num = len(owner_myresult)
-        for i in range(num):
-            if string_data == owner_myresult[i][0]:
-                count = int(i)
-        owner_sql = "SELECT last_name FROM user"
-        mycursor.execute(owner_sql)
-        owner_myresult = mycursor.fetchall()
-        Owner = owner_myresult[count][0]
-
-        # connect to stuff
-        stuff_sql = "SELECT first_name FROM user"
-        mycursor.execute(stuff_sql)
-        stuff_myresult = mycursor.fetchall()
-        Stuff = stuff_myresult[count][0]
+        owner_data = [item for item in owner_myresult if string_data == item[0]]
+        if owner_data:
+            count = owner_myresult.index(owner_data[0])
+            Owner = owner_data[0][1]
+            Stuff = owner_myresult[count][1]
+        else:
+            check = False
 
         sql = "SELECT nstda_code FROM user"
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
-        ##check = False
-        num = len(myresult)
-        for i in range(num):
-            if string_data == str(myresult[i][0]):
-                check = True
+        check = any(string_data == str(item[0]) for item in myresult)
 
-        # อัพเดทสถานะด้วยการเช้ครหัส
-        sql = "SELECT nstda_code FROM user"
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        num = len(myresult)
-        count = 0
-        for i in range(num):
-            if string_data == myresult[i][0]:
-                count = i
-        print(count)
-        print(string_data)
-
-        owner_sql = "SELECT avaliable FROM user WHERE nstda_code=%s"
+        owner_sql = "SELECT avaliable FROM user WHERE nstda_code = %s"
         mycursor.execute(owner_sql, (string_data,))
         myresult = mycursor.fetchall()
-        num = len(myresult)
-        if num == 0:
-            avaliable = "None"
-        else:
-            avaliable = myresult
+        avaliable = myresult[0][0] if myresult else "None"
 
-        # เช็คว่าชื่อยืมคืน
-        namesql = "SELECT name from data WHERE qr=%s"
+        namesql = "SELECT name from data WHERE qr = %s"
         mycursor.execute(namesql, (string_data,))
         myresult = mycursor.fetchall()
         name_user = myresult
 
-        # เช้คลำดับ
         sql = "SELECT id FROM data"
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
-        num = len(myresult)
-        sequence = num+1
+        sequence = len(myresult) + 1
 
-        print(avaliable[0][0])
-        # insert information
         if error_messages == []:
             if str(string_data) != "None":
                 num = len(name_user)
-                if avaliable[0][0] == "True":
-
-                    checkoutdate = (now + timedelta(days=int(day))
-                                    ).strftime('%Y-%m-%d ')
-                    print(checkoutdate)
-
+                if avaliable == "True":
+                    checkoutdate = (now + timedelta(days=int(day))).strftime('%Y-%m-%d')
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql, (string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout,day) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s,%s)"
-                    values = (sequence, id, name, Stuff, tel, now.strftime(
-                        '%Y-%m-%d %H:%M:%S'), string_data, Owner, "borrow", ref, checkoutdate, day)
+                    sql = "INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref, checkout, day) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    values = (sequence, id, name, Stuff, tel, now.strftime('%Y-%m-%d %H:%M:%S'), string_data, Owner, "borrow", ref, checkoutdate, day)
                     mycursor.execute(sql, values)
                     mydb.commit()
                 elif avaliable == "None":
@@ -178,21 +127,16 @@ def scan_qr_code():
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql, (string_data,))
                     mydb.commit()
-
-                    checkoutdate = (now + timedelta(days=int(day))
-                                    ).strftime('%Y-%m-%d ')
-                    print(checkoutdate)
-
+                    checkoutdate = (now + timedelta(days=int(day))).strftime('%Y-%m-%d')
                     nsql = "UPDATE user SET avaliable = 'False' WHERE nstda_code = %s"
                     mycursor.execute(nsql, (string_data,))
                     mydb.commit()
-                    sql = "INSERT INTO data (sequence,id, name,stuff, tel,date,qr,owner,status,ref,checkout,day) VALUES (%s,%s, %s, %s, %s,%s, %s,%s,%s,%s,%s,%s)"
-                    values = (sequence, id, name, Stuff, tel, now.strftime(
-                        '%Y-%m-%d %H:%M:%S'), string_data, Owner, "borrow", ref, checkoutdate, day)
+                    sql = "INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref, checkout, day) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    values = (sequence, id, name, Stuff, tel, now.strftime('%Y-%m-%d %H:%M:%S'), string_data, Owner, "borrow", ref, checkoutdate, day)
                     mycursor.execute(sql, values)
                     mydb.commit()
                 else:
-                    error_messages.append("Not avaliable")
+                    error_messages.append("Not available")
 
         if len(error_messages) > 0:
             for error in error_messages:
@@ -200,6 +144,7 @@ def scan_qr_code():
             return render_template('borrow.html', messages=error_messages)
 
         return render_template('successborrow.html', newstuff=Stuff, newstrdata=string_data, newcheck=check)
+
 
 
 @app.route('/successreturn', methods=['GET', 'POST'])
@@ -462,7 +407,7 @@ def alldataborrow():
     )
 
     mycursor = mydb.cursor()
-    sql = "SELECT * FROM data"
+    sql = "SELECT * FROM data ORDER BY date DESC"
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
 
@@ -480,6 +425,7 @@ def alldataborrow():
             "status": x[8]
         }
         data_list.append(data)
+        print(data_list)
 
     return jsonify(data_list)
 
@@ -491,8 +437,7 @@ def borrowdata():
     allData = request.json
     date = allData['date']
     mycursor = mydb.cursor()
-    sql = "SELECT * FROM data WHERE status = 'borrow' AND  DATE(date) = '" + \
-        date+"'"
+    sql = "SELECT * FROM data WHERE status = 'borrow' AND  DATE(date) = '" +date+"' ORDER BY date DESC"
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
     data_list = []
@@ -525,8 +470,7 @@ def returndata():
     allData = request.json
     date = allData['date']
     mycursor = mydb.cursor()
-    sql = "SELECT * FROM data WHERE status = 'return' AND  DATE(date) = '" + \
-        date+"'"
+    sql = "SELECT * FROM data WHERE status = 'return' AND  DATE(date) = '" +date+"' ORDER BY date DESC"
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
 
@@ -623,6 +567,7 @@ def notreturn():
             print(x[10])
             print(currentTime)
             print(Check)
+    data_list = sorted(data_list, key=lambda x: x['date'], reverse=True)
 
     return jsonify(data_list)
 
@@ -638,7 +583,7 @@ def qrdata():
     allData = request.json
     qr = allData['qrData']
     mycursor = mydb.cursor()
-    sql = "SELECT * FROM data WHERE qr = '"+qr+"'"
+    sql = "SELECT * FROM data WHERE qr = '"+qr+"' ORDER BY date DESC "
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
 
@@ -674,7 +619,7 @@ def returnyear():
     mycursor = mydb.cursor()
 
     if option == "return":
-        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND status = 'return' "
+        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND status = 'return' ORDER BY date DESC"
         mycursor.execute(sql, (year,))
         myresult = mycursor.fetchall()
         data_list = []
@@ -693,7 +638,7 @@ def returnyear():
 
         return jsonify(data_list)
     else:
-        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND status = 'borrow'"
+        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND status = 'borrow' ORDER BY date DESC"
         mycursor.execute(sql, (year,))
         myresult = mycursor.fetchall()
         data_list = []
@@ -729,7 +674,7 @@ def returnmonth():
     #sql = "SELECT * FROM data WHERE DATE(date) LIKE %s"
     #mycursor.execute(sql, (date,))
     if option == "return":
-        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND MONTH(date) LIKE %s AND status = 'return' "
+        sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND MONTH(date) LIKE %s AND status = 'return' ORDER BY date DESC "
         mycursor.execute(sql, (year, month,))
         myresult = mycursor.fetchall()
         data_list = []
@@ -748,7 +693,7 @@ def returnmonth():
 
         return jsonify(data_list)
     else:
-        sql = "SELECT * FROM data WHERE YEAR(date) = %s AND MONTH(date) = %s AND status = 'borrow'"
+        sql = "SELECT * FROM data WHERE YEAR(date) = %s AND MONTH(date) = %s AND status = 'borrow' ORDER BY date DESC"
         mycursor.execute(sql, (year, month,))
         myresult = mycursor.fetchall()
         data_list = []
@@ -817,7 +762,7 @@ def chartreturn():
 def accessinfor():
     if request.method == 'POST':
         error_messages = []
-        error = []
+        error=[]
         try:
             # Get the uploaded file from the form
             qr_code = request.files['qr_code']
@@ -844,23 +789,24 @@ def accessinfor():
             nsql = "SELECT first_name from user WHERE nstda_code=%s"
             mycursor.execute(nsql, (string_data,))
             ownresult = mycursor.fetchall()
-            namestuff = "Stuff: " + \
-                str(ownresult[0][0]) if ownresult else "Stuff: Not Found"
+            namestuff = "Stuff: " + str(ownresult[0][0]) if ownresult else "Stuff: Not Found"
 
             osql = "SELECT last_name from user WHERE nstda_code=%s"
             mycursor.execute(osql, (string_data,))
             stuffresult = mycursor.fetchall()
-            nameowner = "Owner: " + \
-                str(stuffresult[0][0]) if stuffresult else "Owner: Not Found"
+            nameowner = "Owner: " + str(stuffresult[0][0]) if stuffresult else "Owner: Not Found"
             print(nameowner)
 
             if myresult == []:
                 error_messages.append("No data found")
 
             data_list = []
-            for index, x in enumerate(myresult, start=1):
+            num = len(myresult)+1
+            print(num)
+            for index, x in enumerate(myresult, start=num):
+                num = num -1
                 data = {
-                    "order": index,
+                    "order": num,
                     "sequence": x[0],
                     "id": x[1],
                     "name": x[2],
@@ -872,16 +818,18 @@ def accessinfor():
                     "status": x[8]
                 }
                 data_list.append(data)
+                data_list = sorted(data_list, key=lambda x: x['date'], reverse=True)
 
             if error_messages:
-                return render_template('accessinformation.html', messages=error_messages, messages2=error)
+                return render_template('accessinformation.html', messages=error_messages,messages2=error)
             else:
-                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner, messages2=error)
+                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner,messages2=error)
         else:
             error.append("No QR Code")
             return render_template('accessinformation.html', messages2=error)
 
-    return render_template('accessinformation.html', messages=error_messages, messages2=error)
+    return render_template('accessinformation.html', messages=error_messages,messages2=error)
+
 
 
 if __name__ == "__main__":
