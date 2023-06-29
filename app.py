@@ -411,9 +411,8 @@ def successreturn():
 
                                 if stuff != None:
                                     if future_date < now_str:
-                                        checknotalert = False
-                                        warn = "Late Return"
-                                        alertt = "Do you want to return"+stuff+"?"
+                                        warn = name+" Late Return"
+                                        alertt = "Hi! "+name+" Do you want to return"+stuff+"?"
                                         return render_template('successreturn.html', warn=warn, newstuff=Stuff, newstrdata=string_data,
                                                             newcheck=check, alertt=alertt,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
                                     else:
