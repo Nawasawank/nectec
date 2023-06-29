@@ -8,7 +8,6 @@ db = mysql.connector.connect(
 )
 print("Command typing:\nUser record : ur\nOverview of the year : ooty\nBorrowing record : br\nReturn record : rr\nCheck stuff owner : cso\nNot return stuff : nrs")
 
-#เช็คว่าคนนี้ยืมคืนอะไรไปบ้างกี่ครั้ง
 print("-------------------------------------------------")
 command = input("SELECT YOUR COMMAND : ")
 print("-------------------------------------------------")
