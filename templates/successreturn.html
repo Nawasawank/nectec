@@ -7,17 +7,20 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f2f2f2;
         }
 
         h1 {
             color: #333;
-            font-size: 24px;
+            font-size: 32px;
+            text-align: center;
         }
 
         p {
             color: #666;
-            font-size: 16px;
+            font-size: 18px;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         a {
@@ -27,6 +30,27 @@
 
         .warning-list {
             color: red;
+        }
+
+        .link-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .finish-link {
+            display: inline-block;
+            color: #0088cc;
+            font-size: 20px;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #0088cc;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .finish-link:hover {
+            background-color: #0088cc;
+            color: #fff;
         }
     </style>
 </head>
@@ -38,7 +62,6 @@
     var alertt = "{{ alertt }}";
     var checkcancel = "";
     var correct = true; // Initialize 'correct' as false
-
 
     if (warn && alertt) {
         if (confirm(warn)) {
@@ -78,9 +101,12 @@
 </script>
 
 <body>
-    <a href="/">Finish</a>
+    <div class="link-container">
+        <a href="/" class="finish-link">Finish</a>
+    </div>
 </body>
 
 </html>
+
 
 

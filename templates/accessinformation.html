@@ -109,26 +109,41 @@
 
     .button-container {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+    }
+
+    .button-container button[type="submit"] {
+      margin-left: 10px;
     }
     .error-row{
       color: #FF0000; 
     }
 
-    .error-message {
+  .error-message {
     color: red;
     margin: 5px;
   }
-
+  .hidden {
+      display: none;
+  }
   </style>
 </head>
 <body>
   <h1>Access Information</h1>
   <form action="/accessinfor" method="POST" enctype="multipart/form-data">
     <div class="button-container">
-      <input type="file" name="qr_code" accept=".png, .jpg, .jpeg">
+      <input type="radio" onclick="toggleFileInput(true);" name="yesno" id="inputCheck">
+      <label for="inputCheck">Input QR</label>
+      <input type="radio" onclick="toggleFileInput(false);" name="yesno" id="scanCheck">
+      <label for="scanCheck">Scan QR  &nbsp;&nbsp;</label>
+      <br>
+      <div id="fileInputContainer" class="hidden">
+        <input type="file" name="qr_code" accept=".png, .jpg, .jpeg" >
+      </div>
+        
+      <input type="text" placeholder="Scan QR" name="scanqr" class="hidden">
       <button type="submit">Submit</button>
       <div class="go-back">
         <a href="/history">Go Back</a>
@@ -172,7 +187,7 @@
       {% else %}
       {% if messages %}
       <tr class="error-row">
-        <td colspan="5">
+        <td colspan="6">
           {% for message in messages %}
           <p>{{ message }}</p>
           {% endfor %}
@@ -182,5 +197,28 @@
       {% endif %}
     </tbody>
 </table>
+<script>
+  function toggleFileInput(show) {
+    var fileInputContainer = document.getElementById("fileInputContainer");
+    var scanQrInput = document.getElementsByName("scanqr")[0];
+
+    if (show) {
+      fileInputContainer.classList.remove("hidden");
+      scanQrInput.classList.add("hidden");
+    } else {
+      fileInputContainer.classList.add("hidden");
+      scanQrInput.classList.remove("hidden");
+    }
+  }
+  window.addEventListener('keydown',function(e) {
+      if (e.keyIdentifier=='U+000A' || e.keyIdentifier=='Enter' || e.keyCode==13) {
+          if (e.target.nodeName=='INPUT' && e.target.type=='text') {
+              e.preventDefault();
+
+              return false;
+          }
+      }
+  }, true);
+</script>
 </body>
 </html>

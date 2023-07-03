@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, flash, jsonify, session
 import mysql.connector
-import datetime
-from datetime import timedelta
+from datetime import timedelta,datetime
 import os
 
 from pyzbar import pyzbar
@@ -40,29 +39,8 @@ def Return():
 
 @app.route('/successborrow', methods=['POST'])
 def scan_qr_code():
-    error_messages = []
-    try :
-        # Get the uploaded file from the form
-        qr_code = request.files['qr_code']
-        # Open the uploaded file
-        image = Image.open(qr_code)
-
-        # Convert the image to grayscale
-        grayscale_image = image.convert('L')
-        # Decode the QR code
-        decoded_data = pyzbar.decode(grayscale_image)
-    except:
-        decoded_data = []
-        error_messages.append("Insert Qr Code")
-
-    # Extract the string data
-    print(decoded_data)
     string_data = None
     check = True
-    if len(decoded_data) > 0:
-        string_data = decoded_data[0].data.decode('utf-8')
-    else:
-        check=False
     
     if request.method == 'POST':
         id = request.form['id']
@@ -71,15 +49,44 @@ def scan_qr_code():
         day = request.form['day']
         ref = request.form['ref']
 
+        error_messages = []
+        decoded_data=""
+        string_data = request.form['scanqr']
+        print(string_data)
+
         mycursor=mydb.cursor()
-        now = datetime.datetime.now()
+        now = datetime.now()
         if len(id) != 6:
             error_messages.append("ID must be 6 numbers")
         if len(name) < 2:
             error_messages.append("Name must be at least 2 characters")
         if len(tel) != 10:
             error_messages.append("Your number must be 10 digits")
-       
+
+        if string_data == "":
+            try :
+                print("suay")
+            # Get the uploaded file from the form
+                qr_code = request.files['qr_code']
+                # Open the uploaded file
+                image = Image.open(qr_code)
+
+                # Convert the image to grayscale
+                grayscale_image = image.convert('L')
+                # Decode the QR code
+                decoded_data = pyzbar.decode(grayscale_image)
+                
+                string_data = decoded_data[0].data.decode('utf-8')
+                print(string_data)
+                if len(string_data) != 23:
+                    check=False 
+                    error_messages.append("Please input QR Code")
+            except:
+                decoded_data = []
+                error_messages.append("Please input QR Code")
+        elif len(string_data)!=23:
+            error_messages.append("Wrong QR Code")
+        
         try:
             day = int(day)
             if day > 0:
@@ -184,7 +191,7 @@ def scan_qr_code():
         if error_messages ==[]:
             if str(string_data)!="None":
                 num=len(name_user)
-                if avaliable[0] =="True":
+                if avaliable[0][0] =="True":
 
                     checkoutdate = (now + timedelta(days=int(day))).strftime('%Y-%m-%d ')
                     print(checkoutdate)
@@ -223,43 +230,49 @@ def scan_qr_code():
                 flash(error)
             return render_template('borrow.html', messages=error_messages)
         
-        return render_template('successborrow.html',newstuff=Stuff,newstrdata=string_data,newcheck = check)
+        return render_template('successborrow.html',newstuff=Stuff,newstrdata=string_data,newcheck = check,checkoutdate=checkoutdate)
+
 
 
 @app.route('/successreturn', methods=['GET', 'POST'])
 def successreturn():
     string_data = None
     error_messages = []
-    Stuff = None  # Initialize with default value
-    check = False  # Initialize with default value
-    #checkcancel = request.form.get('checkcancel')
-    # print(checkcancel)
-    try:
-        error_messages = []
-        # Get the uploaded file from the form
-        qr_code = request.files['qr_code']
-        # Open the uploaded file
-        image = Image.open(qr_code)
-
-        # Convert the image to grayscale
-        grayscale_image = image.convert('L')
-        # Decode the QR code
-        decoded_data = pyzbar.decode(grayscale_image)
-    except:
-        decoded_data = []
-        error_messages.append("Insert Qr Code")
-
-    # Extract the string data
-    if len(decoded_data) > 0:
-        string_data = decoded_data[0].data.decode('utf-8')
+    Stuff = None  
+    check = False 
 
     if request.method == 'POST':
         id = request.form['id']
         ref = request.form['ref']
         mycursor = mydb.cursor()
-        now = datetime.datetime.now()
+        now = datetime.now()
 
+        string_data = request.form['scanqr']
+        print(string_data)
 
+        if string_data == "":
+            try :
+                print("suay")
+            # Get the uploaded file from the form
+                qr_code = request.files['qr_code']
+                # Open the uploaded file
+                image = Image.open(qr_code)
+
+                # Convert the image to grayscale
+                grayscale_image = image.convert('L')
+                # Decode the QR code
+                decoded_data = pyzbar.decode(grayscale_image)
+                
+                string_data = decoded_data[0].data.decode('utf-8')
+                print(string_data)
+                if len(string_data) != 23:
+                    check=False 
+                    error_messages.append("Please input QR Code")
+            except:
+                decoded_data = []
+                error_messages.append("Please input QR Code")
+        elif len(string_data)!=23:
+            error_messages.append("Wrong QR Code")
 
         sql = "SELECT name FROM staff WHERE id=%s"
         mycursor.execute(sql,(ref,))
@@ -269,12 +282,6 @@ def successreturn():
             checkref = "None"
         else:   
             checkref = "in"
-
-        if len(id) != 6:
-            error_messages.append("ID must be 6 numbers")
-        elif checkref == "None":
-            error_messages.append("No matching refference ID")
-
 
         # เชื่อมเจ้าของ
         owner_sql = "SELECT nstda_code FROM user"
@@ -348,96 +355,104 @@ def successreturn():
         mycursor.execute(sql, (ref,))
         myresult = mycursor.fetchall()
         ref_id = myresult
-
-
+        if myresult:
+            ref_id = myresult[0][0]
+        else:
+            ref_id = None
+        
+        
+        if len(id) != 6:
+            error_messages.append("ID must be 6 numbers")
+        elif checkref == "None":
+            error_messages.append("No matching refference ID")
 
         if avaliable != "None":
-            num = len(name_user)
-            if avaliable[0][0] == "False":
-                
-                    if id_user[-1][0] == id and len(id) == 6:
+            if ref_id != None:
+                num = len(name_user)
+                if avaliable[0][0] == "False":
+                    
+                        if id_user[-1][0] == id and len(id) == 6:
 
-                        daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
-                        mycursor = mydb.cursor()
-                        mycursor.execute(daysql, (string_data,))
-                        day = mycursor.fetchall()
-                        day = day[0][0]
+                            daysql = "SELECT day FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
+                            mycursor = mydb.cursor()
+                            mycursor.execute(daysql, (string_data,))
+                            day = mycursor.fetchall()
+                            day = day[0][0]
 
-                        outsql = "SELECT checkout FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
-                        mycursor = mydb.cursor()
-                        mycursor.execute(outsql, (string_data,))
-                        checkout = mycursor.fetchall()
-                        checkout = checkout[0][0]
+                            outsql = "SELECT checkout FROM data WHERE qr LIKE %s AND status LIKE 'borrow' ORDER BY date DESC LIMIT 1"
+                            mycursor = mydb.cursor()
+                            mycursor.execute(outsql, (string_data,))
+                            checkout = mycursor.fetchall()
+                            checkout = checkout[0][0]
 
-                        sql = """SELECT name, id, tel, stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow'
-                            AND date = (SELECT MAX(date) FROM data WHERE qr LIKE %s AND status LIKE 'borrow') LIMIT 1 """
-                        mycursor = mydb.cursor()
-                        mycursor.execute(sql, (string_data, string_data))
-                        result = mycursor.fetchall()
+                            sql = """SELECT name, id, tel, stuff FROM data WHERE qr LIKE %s AND status LIKE 'borrow'
+                                AND date = (SELECT MAX(date) FROM data WHERE qr LIKE %s AND status LIKE 'borrow') LIMIT 1 """
+                            mycursor = mydb.cursor()
+                            mycursor.execute(sql, (string_data, string_data))
+                            result = mycursor.fetchall()
 
-                        if result:
-                            name, id, tel, stuff = result[0]
+                            if result:
+                                name, id, tel, stuff = result[0]
+                            else:
+                                name = "Unknown"
+                                id = "Unknown"
+                                tel = "Unknown"
+                                stuff = "Unknown"
+
+                            print(id)
+
+                            insert_sql = """INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref,refname)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)"""
+                            values = (sequence, id, name, stuff, tel, now.strftime(
+                                '%Y-%m-%d %H:%M:%S'), string_data, Owner, "return", ref,ref_id)
+                            sql = "UPDATE user SET avaliable = 'True' WHERE nstda_code = %s"
+                            
+
+                            session['insert_sql'] = insert_sql
+                            session['values'] = values
+                            session['sql'] = sql
+                            session['string_data'] = string_data
+
+
+                            now = datetime.now()
+                            now_str = now.strftime('%Y-%m-%d')
+
+                            if day is not None:
+                                try:
+                                    day_int = int(day)
+                                    future_date = (
+                                        now + timedelta(days=day_int)).strftime('%Y-%m-%d')
+                                    print(now_str)
+                                    print(future_date)
+
+                                    if stuff != None:
+                                        if future_date < now_str:
+                                            warn = name+" Late Return"
+                                            alertt = "Hi! "+name+" Do you want to return"+stuff+"?"
+                                            return render_template('successreturn.html', warn=warn, newstuff=Stuff, newstrdata=string_data,
+                                                                newcheck=check, alertt=alertt,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
+                                        else:
+                                            alertt = "Hi! "+name+" Do you want to return"+stuff+"?"
+                                            print(insert_sql)
+                                            print( values)
+                                            print(sql)
+                                            print( string_data)
+                                            return render_template('successreturn.html', alertt=alertt, newstuff=Stuff, newstrdata=string_data,
+                                                                newcheck=check,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
+
+                                except ValueError:
+                                    warn = "Invalid day value"
+
+                        elif avaliable == []:
+                            check = False
                         else:
-                            name = "Unknown"
-                            id = "Unknown"
-                            tel = "Unknown"
-                            stuff = "Unknown"
+                            if len(id_user) == 0:
+                                error_messages.append("have nothing to return")
+                            else:
+                                error_messages.append("incorrect id")
 
-                        print(id)
-
-                        insert_sql = """INSERT INTO data (sequence, id, name, stuff, tel, date, qr, owner, status, ref,refname)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)"""
-                        values = (sequence, id, name, stuff, tel, now.strftime(
-                            '%Y-%m-%d %H:%M:%S'), string_data, Owner, "return", ref,ref_id[0][0])
-                        sql = "UPDATE user SET avaliable = 'True' WHERE nstda_code = %s"
-                        
-
-                        session['insert_sql'] = insert_sql
-                        session['values'] = values
-                        session['sql'] = sql
-                        session['string_data'] = string_data
-
-
-                        now = datetime.datetime.now()
-                        now_str = now.strftime('%Y-%m-%d')
-
-                        if day is not None:
-                            try:
-                                day_int = int(day)
-                                future_date = (
-                                    now + timedelta(days=day_int)).strftime('%Y-%m-%d')
-                                print(now_str)
-                                print(future_date)
-
-                                if stuff != None:
-                                    if future_date < now_str:
-                                        warn = name+" Late Return"
-                                        alertt = "Hi! "+name+" Do you want to return"+stuff+"?"
-                                        return render_template('successreturn.html', warn=warn, newstuff=Stuff, newstrdata=string_data,
-                                                            newcheck=check, alertt=alertt,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
-                                    else:
-                                        alertt = "Hi! "+name+" Do you want to return"+stuff+"?"
-                                        print(insert_sql)
-                                        print( values)
-                                        print(sql)
-                                        print( string_data)
-                                        return render_template('successreturn.html', alertt=alertt, newstuff=Stuff, newstrdata=string_data,
-                                                            newcheck=check,)  # insert_sql=insert_sql, sql=sql, string_data=string_data, values=values)
-
-                            except ValueError:
-                                warn = "Invalid day value"
-
-                    elif avaliable == []:
-                        check = False
-                    else:
-                        if len(id_user) == 0:
-                            error_messages.append("have nothing to return")
-                        else:
-                            error_messages.append("incorrect id")
-
-            else:
-                error_messages.append("have nothing to return")
-
+                else:
+                    error_messages.append("have nothing to return")
         if len(error_messages) > 0:
             for error in error_messages:
                 flash(error)
@@ -645,7 +660,7 @@ def notreturn():
         inner_result = mycursor.fetchall()
 
         for x in inner_result:
-            currentTime = datetime.datetime.now()
+            currentTime = datetime.now()
             if x[10] < str(currentTime):
                 Check = False
             else:
@@ -861,25 +876,49 @@ def chartreturn():
 
 @app.route('/accessinfor', methods=['GET', 'POST'])
 def accessinfor():
+    
+    string_data = request.form['scanqr']
     if request.method == 'POST':
+        print(string_data)
+        print(len(string_data))
         error_messages = []
-        error = []
-        try:
-            # Get the uploaded file from the form
-            qr_code = request.files['qr_code']
-            # Open the uploaded file
-            image = Image.open(qr_code)
+        error=[]
+        decoded_data = []
+        if string_data == "":
+            try :
+                # Get the uploaded file from the form
+                qr_code = request.files['qr_code']
+                # Open the uploaded file
+                image = Image.open(qr_code)
 
-            # Convert the image to grayscale
-            grayscale_image = image.convert('L')
-            # Decode the QR code
-            decoded_data = pyzbar.decode(grayscale_image)
-        except:
-            decoded_data = []
-
-        if decoded_data:
+                # Convert the image to grayscale
+                grayscale_image = image.convert('L')
+                # Decode the QR code
+                decoded_data = pyzbar.decode(grayscale_image)
+                
+                string_data = decoded_data[0].data.decode('utf-8')
+                
+                if len(string_data) != 23:
+                    check=False 
+                    error.append("Wrong QR Code")
+            except:
+                decoded_data = []
+                error.append("Please input QR Code")
+                error_messages.append("No data found")
+        elif len(string_data)!=23:
+            error.append("Wrong QR Code")
+        elif len(string_data)==23:
+            sql = "SELECT nstda_code from user WHERE nstda_code=%s"
+            mycursor = mydb.cursor()
+            mycursor.execute(sql, (string_data,))
+            myresult = mycursor.fetchall()
+            if not myresult:
+                error.append("Wrong QR Code")
+ 
+        print(decoded_data)
+        if string_data:
             # Extract the string data
-            string_data = decoded_data[0].data.decode('utf-8')
+            #string_data = decoded_data[0].data.decode('utf-8')
             mycursor = mydb.cursor()
 
             sql = "SELECT * from data WHERE qr=%s"
@@ -890,23 +929,24 @@ def accessinfor():
             nsql = "SELECT first_name from user WHERE nstda_code=%s"
             mycursor.execute(nsql, (string_data,))
             ownresult = mycursor.fetchall()
-            namestuff = "Stuff: " + \
-                str(ownresult[0][0]) if ownresult else "Stuff: Not Found"
+            namestuff = "Stuff: " + str(ownresult[0][0]) if ownresult else ""
 
             osql = "SELECT last_name from user WHERE nstda_code=%s"
             mycursor.execute(osql, (string_data,))
             stuffresult = mycursor.fetchall()
-            nameowner = "Owner: " + \
-                str(stuffresult[0][0]) if stuffresult else "Owner: Not Found"
+            nameowner = "Owner: " + str(stuffresult[0][0]) if stuffresult else ""
             print(nameowner)
 
             if myresult == []:
                 error_messages.append("No data found")
 
             data_list = []
-            for index, x in enumerate(myresult, start=1):
+            num = len(myresult)+1
+            print(num)
+            for index, x in enumerate(myresult, start=num):
+                num = num -1
                 data = {
-                    "order": index,
+                    "order": num,
                     "sequence": x[0],
                     "id": x[1],
                     "name": x[2],
@@ -918,17 +958,14 @@ def accessinfor():
                     "status": x[8]
                 }
                 data_list.append(data)
-                data_list = sorted(data_list, key=lambda x: (x['date'], x['order']), reverse=True)
+                data_list = sorted(data_list, key=lambda x: x['date'], reverse=True)
 
             if error_messages:
-                return render_template('accessinformation.html', messages=error_messages, messages2=error)
+                return render_template('accessinformation.html', stuff=namestuff, owner=nameowner,messages=error_messages,messages2=error)
             else:
-                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner, messages2=error)
-        else:
-            error.append("No QR Code")
-            return render_template('accessinformation.html', messages2=error)
+                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner,messages2=error)
 
-    return render_template('accessinformation.html', messages=error_messages, messages2=error)
+    return render_template('accessinformation.html', messages=error_messages,messages2=error)
 
 
 

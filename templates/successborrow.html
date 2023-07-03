@@ -6,33 +6,78 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f2f2f2;
         }
 
         h1 {
             color: #333;
-            font-size: 24px;
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         p {
             color: #666;
-            font-size: 16px;
+            font-size: 18px;
             margin-bottom: 10px;
+            text-align: center;
         }
 
-        a {
+        .success-message {
+            color: #33cc33;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #cc3333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .return-date {
+            color: #666;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .link-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .finish-link {
+            display: inline-block;
             color: #0088cc;
+            font-size: 20px;
             text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #0088cc;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .finish-link:hover {
+            background-color: #0088cc;
+            color: #fff;
         }
     </style>
 </head>
 <body>
-        {% if newcheck %}
-            <h1>Successfully borrowed</h1>
-            <p>Borrowing List: {{ newstuff }}</p>
-        {% else %}
-            <h1>Unsuccessfully borrowed</h1>
-            <p>No QR Code found or failed to decode.</p>
-        {% endif %}
-    <a href="/">Finish</a>
+    {% if newcheck %}
+        <h1>Successfully borrowed</h1>
+        <p class="success-message">Borrowing List: {{ newstuff }}</p>
+    {% else %}
+        <h1 class="error-message">Unsuccessfully borrowed</h1>
+        <p class="error-message">No QR Code found or failed to decode.</p>
+    {% endif %}
+    {% if checkoutdate %}
+        <p class="return-date">You have to return by {{ checkoutdate }}</p>
+    {% endif %}
+    <div class="link-container">
+        <a href="/" class="finish-link">Finish</a>
+    </div>
 </body>
 </html>

@@ -4,28 +4,42 @@
 <head>
   <title>Return System</title>
   <style>
-    body {
+body {
       font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
     }
 
     h1 {
       text-align: center;
+      color: #333;
+      margin-top: 50px;
     }
 
     form {
       width: 300px;
       margin: 0 auto;
+      background-color: #fff;
+      padding: 40px 70px; /* Adjust the padding values as needed */
+      border-radius: 10px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
     }
 
     label {
-      display: block;
-      margin-bottom: 10px;
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #555;
+  }
+
+    input[type="radio"] {
+      display: inline-block;
+      margin-right: 5px;
     }
 
-    input[type="text"] {
+    input[type="text"],
+    select {
       width: 100%;
-      padding: 5px;
-      margin-bottom: 10px;
+      padding: 10px;
+      margin-bottom: 15px;
       border: 2px solid #555;
       border-radius: 5px;
     }
@@ -38,26 +52,21 @@
       border: none;
       cursor: pointer;
       border-radius: 15px;
+      transition: background-color 0.3s;
     }
 
     input[type="submit"]:hover {
       background-color: #45a049;
     }
 
-    select {
-      width: 100%;
-      padding: 5px;
-      margin-bottom: 15px;
-    }
-
     input[type="file"] {
       margin-bottom: 15px;
       border-radius: 3px;
     }
-
+    
     .go-back {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     .go-back a {
@@ -65,11 +74,15 @@
       padding: 5px;
       background-color: #98999b;
       color: white;
-      border-radius: 20px;
+      border-radius: 10px;
     }
 
     .go-back a:hover {
-      background-color: #98999b;
+      background-color: #8d8d8d;
+    }
+    
+    .hidden {
+      display: none;
     }
 
     .warning {
@@ -82,6 +95,21 @@
       text-align: center;
       color: red;
     }
+    .flash-messages {
+      width: 300px;
+      margin: 10px auto;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    .flash-message {
+      margin-bottom: 5px;
+      padding: 5px;
+      background-color: #ffe8e8;
+      color: #cc0000;
+      border-radius: 5px;
+    }
+
   </style>
 </head>
 
@@ -91,11 +119,18 @@
 
   <form action="/successreturn" method="POST" enctype="multipart/form-data">
     <label for="id">Your ID</label>
-    <input type="text" placeholder="ID" name="id"><br /><br />
+    <input type="text" placeholder="ID" name="id"><br />
     <label for="id">Reference ID</label>
-    <input type="text" placeholder="reference id" name="ref"><br /><br />
-    <input type="file" name="qr_code" accept=".png, .jpg, .jpeg">
-    <br><br>
+    <input type="text" placeholder="reference id" name="ref"><br />
+    <input type="radio" onclick="toggleFileInput(true);" name="yesno" id="inputCheck" >
+    <label for="inputCheck">Input QR</label>
+    <input type="radio" onclick="toggleFileInput(false);" name="yesno" id="scanCheck">
+    <label for="scanCheck">Scan QR</label>
+      
+    <div id="fileInputContainer" class="hidden">
+      <input type="file" name="qr_code" accept=".png, .jpg, .jpeg"><br>
+    </div>
+    <input type="text" placeholder="Scan QR" name="scanqr" class="hidden">
     <input type="submit" value="Submit">
     <br><br>
     <div class="go-back">
@@ -105,16 +140,40 @@
 
 
   <div class="container">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for msg in messages %}
-    <div>{{ msg }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for msg in messages %}
+      <div class="flash-message">{{ msg }}</div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    </div>
   </div>
 </body>
+<script>
+  function toggleFileInput(show) {
+    var fileInputContainer = document.getElementById("fileInputContainer");
+    var scanQrInput = document.getElementsByName("scanqr")[0];
 
+    if (show) {
+      fileInputContainer.classList.remove("hidden");
+      scanQrInput.classList.add("hidden");
+    } else {
+      fileInputContainer.classList.add("hidden");
+      scanQrInput.classList.remove("hidden");
+    }
+  }
+  window.addEventListener('keydown',function(e) {
+        if (e.keyIdentifier=='U+000A' || e.keyIdentifier=='Enter' || e.keyCode==13) {
+            if (e.target.nodeName=='INPUT' && e.target.type=='text') {
+                e.preventDefault();
+
+                return false;
+            }
+        }
+    }, true);
+</script>
 </html>
 
 
