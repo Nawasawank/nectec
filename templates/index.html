@@ -7,23 +7,25 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5; /* Set a background color */
+      background-color: #f5f5f5;
     }
 
     h1 {
       text-align: center;
-      color: #333; /* Change the heading color */
-      margin-top: 40px; /* Add margin to the top */
+      color: #333;
+      margin-top: 40px;
+      font-size: 36px;
+      text-transform: uppercase;
     }
 
     .navbar {
-      background-color: #eea239;
+      background-color: #442200;
       overflow: hidden;
       position: fixed;
       top: 0;
       width: 100%;
       z-index: 9999;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .navbar a {
@@ -45,25 +47,32 @@
     }
 
     .content {
-      padding-top: 50px; /* Increase the padding to avoid overlap with navbar */
+      padding-top: 120px;
       text-align: center;
     }
 
-    button {
+    .button-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .button-container button {
       font-size: 24px;
       padding: 12px 24px;
-      display: inline-block; /* Change display to inline-block to align buttons horizontally */
-      margin: 10px; /* Add margin around buttons */
+      margin: 10px;
       background-color: #e6b26a;
       color: white;
       border: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
       border-radius: 10px;
-      text-transform: uppercase; /* Change button text to uppercase */
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    button:hover {
+    .button-container button:hover {
       background-color: #c69c62;
     }
   </style>
@@ -71,28 +80,22 @@
 <body>
   <!-- Navbar -->
   <div class="navbar">
-    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
-    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+    <a href="/logout" style="color: #f2f2f2;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #f2f2f2; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
   </div>
 
   <!-- Content -->
   <div class="content">
     <h1>Borrow & Return System</h1>
-    <form action="/borrow" method="POST">
-      <input type="hidden" name="_method">
-      <button type="submit">Borrow</button>
-    </form>
-    <form action="/return" method="POST">
-      <input type="hidden" name="_method">
-      <button type="submit">Return</button>
-    </form>
-    <form action="/history" method="POST">
-      <input type="hidden" name="_method">
-      <button type="submit">History</button>
-    </form>
+    <div class="button-container">
+      <form action="/borrow" method="POST"><button type="submit">Borrow</button></form>
+      <form action="/return" method="POST"><button type="submit">Return</button></form>
+      <form action="/history" method="POST"><button type="submit">History</button></form>
+    </div>
   </div>
 </body>
 </html>
+
 
 
 

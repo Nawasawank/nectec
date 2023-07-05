@@ -18,7 +18,7 @@ app.config['MYSQL_DB'] = 'borrowingsystem'
 
 
 app.config['JWT_SECRET_KEY'] = '963b5afdccdafbd06d384dca'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt = JWTManager(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -112,15 +112,15 @@ def register():
         if existing_user:
             error_messages1.append("Username already exists. Please choose a different username.")
 
-        if len(error_messages1)>0 or len(error_messages2)>0:
-            return render_template('register.html', error_messages1=error_messages1,error_messages2=error_messages2)
+        if len(error_messages1) > 0 or len(error_messages2) > 0:
+            return render_template('register.html', error_messages1=error_messages1, error_messages2=error_messages2)
         else:
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             query = "INSERT INTO member (username, password_hash) VALUES (%s, %s)"
             mycursor.execute(query, (id, hashed_password))
             mydb.commit()
             
-            return render_template('login.html')
+            return render_template('register.html', success_message=True)
     
     return render_template('register.html')
 

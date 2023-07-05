@@ -19,6 +19,7 @@
       flex-wrap: wrap;
       justify-content: center;
       margin-top: 30px;
+      
     }
 
     .button-container form {
@@ -34,6 +35,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
       border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     button:hover {
@@ -56,7 +58,7 @@
       background-color: #8d8d8d;
     }
     .navbar {
-      background-color: #eea239;
+      background-color: #442200;
       position: fixed;
       top: 0;
       left: 0;
@@ -84,11 +86,11 @@
   </style>
 </head>
 <body>
-    <h1>History</h1>
     <div class="navbar">
-      <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
-      <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+      <a href="/logout" style="color: #f2f2f2;" class="navbar-right">Log Out</a>
+      <span class="navbar-right" style="color: #f2f2f2; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
     </div>
+    <h1>History</h1>
     <div class="button-container">
       <form action="/userrecord" method="POST">
         <button type="submit">User Record</button>
@@ -120,3 +122,4 @@
     </div>
 </body>
 </html>
+

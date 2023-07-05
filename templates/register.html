@@ -5,8 +5,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin-top: 180px;
+      background-color: #ffe6c1;
+      margin-top: 150px;
     }
     
     .container {
@@ -40,7 +40,7 @@
     .btn {
       display: inline-block;
       padding: 10px 20px;
-      background-color: #007bff;
+      background-color: #f1b157;
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -48,7 +48,7 @@
     }
     
     .btn:hover {
-      background-color: #0069d9;
+      background-color: #d58c43;
     }
     
     .error-box {
@@ -77,10 +77,23 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 40px;
+      font-size: 36px;
+      text-transform: uppercase;
+    }
     
   </style>
 </head>
 <body>
+  <script>
+    function showAlert() {
+      alert("Registration successful!");
+    }
+  </script>
+  <h1>Borrow & Return</h1>
   <div class="container">
     <h2>Register</h2>
     <form action="/register" method="POST">
@@ -93,7 +106,7 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
       </div>
-      <button type="submit" class="btn">Register</button>
+      <button type="submit" class="btn" onclick="showAlert()">Register</button>
     </form><br>
     <p>Already have an account? <a href="/">Log in</a></p>
     {% if error_messages1 %}
