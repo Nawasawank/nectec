@@ -3,43 +3,99 @@
 <head>
   <title>Borrow & Return System</title>
   <style>
-     body {
+    body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5; /* Set a background color */
     }
+
     h1 {
       text-align: center;
+      color: #333; /* Change the heading color */
+      margin-top: 40px; /* Add margin to the top */
     }
+
+    .navbar {
+      background-color: #eea239;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+    }
+
+    .navbar a {
+      float: left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
+    }
+
+    .content {
+      padding-top: 50px; /* Increase the padding to avoid overlap with navbar */
+      text-align: center;
+    }
+
     button {
       font-size: 24px;
       padding: 12px 24px;
-      display: block;
-      margin: 0 auto;
-      background-color: #4CAF50;
+      display: inline-block; /* Change display to inline-block to align buttons horizontally */
+      margin: 10px; /* Add margin around buttons */
+      background-color: #e6b26a;
       color: white;
       border: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
       border-radius: 10px;
+      text-transform: uppercase; /* Change button text to uppercase */
     }
 
     button:hover {
-      background-color: #45a049;
+      background-color: #c69c62;
     }
   </style>
 </head>
 <body>
-  <h1>Borrow & Return System</h1>
-  <form action="/borrow" method="POST">
-    <input type="hidden" name="_method">
-    <button type="submit">Borrow</button>
-  </form><br>
-  <form action="/return" method="POST">
-    <input type="hidden" name="_method">
-    <button type="submit">Return</button>
-  </form><br>
-  <form action="/history" method="POST">
-    <input type="hidden" name="_method">
-    <button type="submit">History</button>
-  </form>
+  <!-- Navbar -->
+  <div class="navbar">
+    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h1>Borrow & Return System</h1>
+    <form action="/borrow" method="POST">
+      <input type="hidden" name="_method">
+      <button type="submit">Borrow</button>
+    </form>
+    <form action="/return" method="POST">
+      <input type="hidden" name="_method">
+      <button type="submit">Return</button>
+    </form>
+    <form action="/history" method="POST">
+      <input type="hidden" name="_method">
+      <button type="submit">History</button>
+    </form>
+  </div>
 </body>
 </html>
+
+
+
+
+
+

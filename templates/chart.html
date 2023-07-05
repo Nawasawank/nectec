@@ -10,7 +10,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0;
+            margin-top: 50px;
+            margin-bottom: 20px;
         }
         .container {
             display: flex;
@@ -20,29 +21,29 @@
             margin-top: 20px;
         }
         .button-group {
-      display: inline;
-    }
+            display: inline;
+        }
 
         .button-group input,
         .button-group button {
-        display: inline-block;
-    }
+            display: inline-block;
+        }
 
         .go-back {
-        display: inline-block;
-        margin-left: 10px;
-    }
-    .go-back a {
-      text-decoration: none;
-      padding: 5px;
-      background-color: #98999b;
-      color: white;
-      border-radius: 5px;
-    }
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .go-back a {
+        text-decoration: none;
+        padding: 5px;
+        background-color: #98999b;
+        color: white;
+        border-radius: 5px;
+        }
 
-    .go-back a:hover {
-      background-color: #8d8d8d;
-    }
+        .go-back a:hover {
+        background-color: #8d8d8d;
+        }
 
 
         input[type="text"] {
@@ -51,28 +52,58 @@
         font-size: 14px;
         border: 1px solid #ccc;
         border-radius: 4px;
-    }
+        }
 
-    button {
+        button {
+            text-align: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #e6b26a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #myChart {
+            max-width: 2000px;
+            max-height: 500px;
+            height: 300;
+            margin-top: 20px;
+        }
+        .navbar {
+        background-color: #eea239;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+        color: #f2f2f2;
         text-align: center;
-        padding: 8px 12px;
-        font-size: 14px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    #myChart {
-        max-width: 2000px;
-        max-height: 500px;
-        height: 300;
-        margin-top: 20px;
-    }
+        padding: 20px 16px;
+        text-decoration: none;
+        font-size: 18px;
+        transition: background-color 0.3s;
+        }
+
+        .navbar .navbar-right {
+        float: right;
+        }
+
+        .navbar a:hover {
+        background-color: #c98b33;
+        }
     </style>
 </head>
 <body>
     <h1>Chart</h1>
+    <div class="navbar">
+        <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+        <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+    </div>
     <div class="container">
         <div class="form-group">
             <label for="year">Year:</label>

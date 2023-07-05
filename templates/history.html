@@ -4,8 +4,10 @@
   <title>History</title>
   <style>
     body {
+      padding: 50px;
       font-family: Arial, sans-serif;
       text-align: center;
+      background-color: #f2f2f2;
     }
 
     h1 {
@@ -26,7 +28,7 @@
     button {
       font-size: 24px;
       padding: 12px 24px;
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
       border: none;
       cursor: pointer;
@@ -35,7 +37,7 @@
     }
 
     button:hover {
-      background-color: #45a049;
+      background-color: #c69c62;
     }
 
     .go-back {
@@ -53,10 +55,40 @@
     .go-back a:hover {
       background-color: #8d8d8d;
     }
+    .navbar {
+      background-color: #eea239;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
+    }
   </style>
 </head>
 <body>
     <h1>History</h1>
+    <div class="navbar">
+      <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+      <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+    </div>
     <div class="button-container">
       <form action="/userrecord" method="POST">
         <button type="submit">User Record</button>
@@ -84,7 +116,7 @@
     </div>
 
     <div class="go-back">
-      <a href="/">Go Back</a>
+      <a href="/menu">Go Back</a>
     </div>
 </body>
 </html>

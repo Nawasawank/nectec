@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, flash, jsonify, session
+from flask import Flask, render_template, request, flash, jsonify, session, make_response,redirect
 import mysql.connector
-from datetime import timedelta,datetime
+from datetime import timedelta, datetime
 import os
-
 from pyzbar import pyzbar
 from PIL import Image
+import bcrypt
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+import jwt as pyjwt
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required,current_user
 
 
 app = Flask(__name__)
@@ -12,8 +15,16 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'snsdforever9'
 app.config['MYSQL_DB'] = 'borrowingsystem'
-app.secret_key = 'kf1234'
 
+
+app.config['JWT_SECRET_KEY'] = '963b5afdccdafbd06d384dca'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
+jwt = JWTManager(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+app.secret_key = '0094b98a02900a1254625937'
 
 mydb = mysql.connector.connect(
     host=app.config['MYSQL_HOST'],
@@ -22,23 +33,126 @@ mydb = mysql.connector.connect(
     database=app.config['MYSQL_DB']
 )
 
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+        
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated: 
+        return redirect('/menu')
+    if request.method == 'POST':
+        id = request.form['id']
+        password = request.form['password']
+
+        mycursor = mydb.cursor()
+        query = "SELECT * FROM member WHERE username = %s"
+        mycursor.execute(query, (id,))
+        user = mycursor.fetchone()
+
+        if user and bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
+            login_user(User(id))
+            payload = {
+                'username': id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+            }
+            
+            access_token = pyjwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
+
+            session['access_token'] = access_token
+            print(access_token)
+            response = make_response(render_template('index.html',id=id))
+            response.set_cookie('access_token', access_token)
+            print(response)
+            return response
+        else:
+            return render_template('login.html', message="Incorrect Username or Password")
+    else:
+        return render_template('login.html')
+
+@app.route('/protected')
+@login_required
+def protected():
+    return "Protected route: Only accessible by authenticated users"
 
 
-@app.route('/borrow', methods=['POST'])
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    response = make_response(redirect('/'))
+    response.delete_cookie('access_token')
+    print(response)
+    return response
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        id = request.form['id']
+        password = request.form['password']
+        error_messages1 = []
+        error_messages2 = []
+
+        # Check if the username already exists
+        mycursor = mydb.cursor()
+        query = "SELECT username FROM member WHERE username = %s"
+        mycursor.execute(query, (id,))
+        existing_user = mycursor.fetchone()
+
+        
+        if not id.isdigit() or len(id) != 6:
+            error_messages1.append("ID must be a 6-digit number.")
+        if len(password) != 6:
+            error_messages2.append("Password must be 6 characters.")
+        if existing_user:
+            error_messages1.append("Username already exists. Please choose a different username.")
+
+        if len(error_messages1)>0 or len(error_messages2)>0:
+            return render_template('register.html', error_messages1=error_messages1,error_messages2=error_messages2)
+        else:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            query = "INSERT INTO member (username, password_hash) VALUES (%s, %s)"
+            mycursor.execute(query, (id, hashed_password))
+            mydb.commit()
+            
+            return render_template('login.html')
+    
+    return render_template('register.html')
+
+
+
+@app.route('/menu', methods=['GET', 'POST'])
+@login_required
+def menu():
+    id = current_user.get_id()
+    print(id)
+    return render_template('index.html', id=id)
+
+
+
+
+@app.route('/borrow', methods=['GET', 'POST'])
+@login_required
 def borrow():
-    return render_template('borrow.html')
+    id = current_user.get_id()
+    return render_template('borrow.html', id=id)
 
 
 @app.route('/return', methods=['GET', 'POST'])
+@login_required
 def Return():
-    return render_template('return.html')
+    id = current_user.get_id()
+    return render_template('return.html', id=id)
 
 @app.route('/successborrow', methods=['POST'])
+@login_required
 def scan_qr_code():
+    id = current_user.get_id()
     string_data = None
     check = True
     
@@ -228,14 +342,16 @@ def scan_qr_code():
         if len(error_messages) > 0:
             for error in error_messages:
                 flash(error)
-            return render_template('borrow.html', messages=error_messages)
+            return render_template('borrow.html', messages=error_messages,id=id)
         
-        return render_template('successborrow.html',newstuff=Stuff,newstrdata=string_data,newcheck = check,checkoutdate=checkoutdate)
+        return render_template('successborrow.html',newstuff=Stuff,newstrdata=string_data,newcheck = check,checkoutdate=checkoutdate,id=id)
 
 
 
 @app.route('/successreturn', methods=['GET', 'POST'])
+@login_required
 def successreturn():
+    id = current_user.get_id()
     string_data = None
     error_messages = []
     Stuff = None  
@@ -456,12 +572,13 @@ def successreturn():
         if len(error_messages) > 0:
             for error in error_messages:
                 flash(error)
-            return render_template('return.html', messages=error_messages)
+            return render_template('return.html', messages=error_messages,id=id)
 
-    return render_template('successreturn.html')
+    return render_template('successreturn.html',id=id)
 
 
 @app.route('/confirm', methods=['GET'])
+@login_required
 def confirm():
     mycursor = mydb.cursor()
     insert_sql = session.get('insert_sql')
@@ -478,42 +595,57 @@ def confirm():
     return jsonify({'message': 'Data has been submitted'})
 
 @app.route('/history', methods=['GET', 'POST'])
+@login_required
 def history():
-    return render_template('history.html')
+    id = current_user.get_id()
+    return render_template('history.html',id=id)
 
 
 @app.route('/userrecord', methods=['GET', 'POST'])
+@login_required
 def userrecord():
-    return render_template('userrecord.html')
+    id = current_user.get_id()
+    return render_template('userrecord.html',id=id)
 
 
 @app.route('/overview', methods=['GET', 'POST'])
+@login_required
 def overview():
-    return render_template('overview.html')
+    id = current_user.get_id()
+    return render_template('overview.html',id=id)
 
 
 @app.route('/accessinformation', methods=['GET', 'POST'])
+@login_required
 def accessinformation():
-    return render_template('accessinformation.html')
+    id = current_user.get_id()
+    return render_template('accessinformation.html',id=id)
 
 
 @app.route('/notreturnstuff', methods=['GET', 'POST'])
+@login_required
 def notreturnstuff():
-    return render_template('notreturnstuff.html')
+    id = current_user.get_id()
+    return render_template('notreturnstuff.html',id=id)
 
 
 @app.route('/checkdate', methods=['GET', 'POST'])
+@login_required
 def checkdate():
-    return render_template('checkdate.html')
+    id = current_user.get_id()
+    return render_template('checkdate.html',id=id)
 
 
 @app.route('/chart', methods=['GET', 'POST'])
+@login_required
 def chartperyear():
-    return render_template('chart.html')
+    id = current_user.get_id()
+    return render_template('chart.html',id=id)
 
 
 # findall users record
 @app.route('/allborrow', methods=['GET', 'POST'])
+@login_required
 def alldataborrow():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -549,6 +681,7 @@ def alldataborrow():
 
 
 @app.route('/borrowdata', methods=['POST'])
+@login_required
 def borrowdata():
     allData = request.json
     date = allData['date']
@@ -575,6 +708,7 @@ def borrowdata():
 
 # return information
 @app.route('/returndata', methods=['POST'])
+@login_required
 def returndata():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -607,7 +741,8 @@ def returndata():
     return jsonify(data_list)
 
 
-@app.route('/notreturn', methods=['POST'])
+@app.route('/notreturn', methods=['POST','GET'])
+@login_required
 def notreturn():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -660,12 +795,27 @@ def notreturn():
         inner_result = mycursor.fetchall()
 
         for x in inner_result:
+            from datetime import datetime
+
             currentTime = datetime.now()
-            if x[10] < str(currentTime):
+            other_date = datetime.strptime(x[10].strip(), "%Y-%m-%d")
+
+            print(currentTime)
+            print(type(currentTime))
+            print(other_date)
+            print(type(other_date))
+
+            if other_date < currentTime:
                 Check = False
+                dayleft_str = "expired"
             else:
                 Check = True
+                dayleft = other_date - currentTime
+                dayleft_str = str((dayleft.days)+1) + " days left"
+                print(dayleft_str)
 
+            for i in range(10):
+                print(type(x[i]))
             data = {
                 "sequence": x[0],
                 "id": x[1],
@@ -677,18 +827,17 @@ def notreturn():
                 "qr": x[7],
                 "ref": x[9],
                 "day": x[10],
-                "check": Check
+                "dayleft": dayleft_str,
+                "check": Check,
             }
             data_list.append(data)
-            print(x[10])
-            print(currentTime)
-            print(Check)
-    data_list = sorted(data_list, key=lambda x: x['date'], reverse=True)
+    data_list = sorted(data_list, key=lambda x: x['day'], reverse=False)
 
     return jsonify(data_list)
 
 
 @app.route('/qrdata', methods=['POST'])
+@login_required
 def qrdata():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -722,6 +871,7 @@ def qrdata():
 
 
 @app.route('/returnyear', methods=['POST'])
+@login_required
 def returnyear():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -775,6 +925,7 @@ def returnyear():
 
 
 @app.route('/returnmonth', methods=['POST'])
+@login_required
 def returnmonth():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -787,8 +938,7 @@ def returnmonth():
     month = allData['month']
     option = allData['option']
     mycursor = mydb.cursor()
-    #sql = "SELECT * FROM data WHERE DATE(date) LIKE %s"
-    #mycursor.execute(sql, (date,))
+
     if option == "return":
         sql = "SELECT * FROM data WHERE YEAR(date) LIKE %s AND MONTH(date) LIKE %s AND status = 'return' ORDER BY date DESC "
         mycursor.execute(sql, (year, month,))
@@ -830,6 +980,7 @@ def returnmonth():
 
 
 @app.route('/chartborrow', methods=['POST'])
+@login_required
 def chartborrow():
     mycursor = mydb.cursor()
     data_list = []
@@ -851,6 +1002,7 @@ def chartborrow():
 
 
 @app.route('/chartreturn', methods=['POST'])
+@login_required
 def chartreturn():
 
     allData = request.json
@@ -875,8 +1027,9 @@ def chartreturn():
 
 
 @app.route('/accessinfor', methods=['GET', 'POST'])
+@login_required
 def accessinfor():
-    
+    id = current_user.get_id()
     string_data = request.form['scanqr']
     if request.method == 'POST':
         print(string_data)
@@ -917,8 +1070,6 @@ def accessinfor():
  
         print(decoded_data)
         if string_data:
-            # Extract the string data
-            #string_data = decoded_data[0].data.decode('utf-8')
             mycursor = mydb.cursor()
 
             sql = "SELECT * from data WHERE qr=%s"
@@ -961,12 +1112,11 @@ def accessinfor():
                 data_list = sorted(data_list, key=lambda x: x['date'], reverse=True)
 
             if error_messages:
-                return render_template('accessinformation.html', stuff=namestuff, owner=nameowner,messages=error_messages,messages2=error)
+                return render_template('accessinformation.html', stuff=namestuff, owner=nameowner,messages=error_messages,messages2=error,id=id)
             else:
-                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner,messages2=error)
+                return render_template('accessinformation.html', data_list=data_list, stuff=namestuff, owner=nameowner,messages2=error,id=id)
 
-    return render_template('accessinformation.html', messages=error_messages,messages2=error)
-
+    return render_template('accessinformation.html', messages=error_messages,messages2=error,id=id)
 
 
 if __name__ == "__main__":

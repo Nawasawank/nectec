@@ -5,6 +5,7 @@
   <title>Return System</title>
   <style>
 body {
+      padding: 50px;
       font-family: Arial, sans-serif;
       background-color: #f2f2f2;
     }
@@ -47,7 +48,7 @@ body {
     input[type="submit"] {
       width: 100%;
       padding: 10px;
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
       border: none;
       cursor: pointer;
@@ -56,7 +57,7 @@ body {
     }
 
     input[type="submit"]:hover {
-      background-color: #45a049;
+      background-color: #c69c62;
     }
 
     input[type="file"] {
@@ -109,14 +110,47 @@ body {
       color: #cc0000;
       border-radius: 5px;
     }
+    .navbar {
+      background-color: #eea239;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
+    .navbar a {
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
+    }
+    
+    label.radio-label {
+      display: inline-block;
+      margin-right: 10px;
+    }
   </style>
 </head>
 
 <body>
 
   <h1>Return System</h1>
-
+  <div class="navbar">
+    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+  </div>
   <form action="/successreturn" method="POST" enctype="multipart/form-data">
     <label for="id">Your ID</label>
     <input type="text" placeholder="ID" name="id"><br />
@@ -134,7 +168,7 @@ body {
     <input type="submit" value="Submit">
     <br><br>
     <div class="go-back">
-      <a href="/">Go Back</a>
+      <a href="/menu">Go Back</a>
     </div>
   </form>
 

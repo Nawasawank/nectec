@@ -14,7 +14,7 @@
 
     h1 {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 80px;
     }
 
     .container {
@@ -44,7 +44,7 @@
       text-align: center;
       padding: 8px 12px;
       font-size: 14px;
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
       border: none;
       border-radius: 4px;
@@ -73,6 +73,7 @@
       border-collapse: collapse;
       width: 100%;
       margin-top: 20px;
+      margin-top: 40px; /* Added margin to the top of the table */
     }
 
     th, td {
@@ -82,8 +83,34 @@
     }
 
     th {
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
+    }
+    .navbar {
+      background-color: #eea239;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
     }
   </style>
   <script>
@@ -158,6 +185,10 @@
 </head>
 <body>
   <h1>User Record</h1>
+  <div class="navbar">
+    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+  </div>
   <div class="container">
     <div class="button-group">
       <input type="text" id="input_id" placeholder="Enter ID">

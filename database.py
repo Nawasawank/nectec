@@ -7,7 +7,7 @@ db=mysql.connector.connect(
 
 cursor=db.cursor()
 
-query="DELETE FROM data WHERE id = '333333'"
+query="CREATE TABLE accountinfo (id VARCHAR(255), password VARCHAR(255))"
 cursor.execute(query)
 db.commit()
 

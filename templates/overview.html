@@ -12,7 +12,8 @@
       text-align: center;
       padding: 20px 0;
       color: black;
-      margin: 0;
+      margin-top: 60px;
+      margin-bottom: 20px;
     }
 
     .container {
@@ -57,11 +58,10 @@
     select:focus,
     input[type="text"]:focus {
       outline: none;
-      border-color: #4CAF50;
     }
 
     button {
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
       border: none;
       cursor: pointer;
@@ -69,7 +69,7 @@
     }
 
     button:hover {
-      background-color: #45a049;
+      background-color: #c69c62;
     }
 
     table {
@@ -85,7 +85,7 @@
     }
 
     th {
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
     }
 
@@ -113,6 +113,32 @@
     .error-message {
       color: red;
       margin-top: 10px;
+    }
+    .navbar {
+      background-color: #eea239;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
     }
   </style>
   <script>
@@ -252,6 +278,10 @@
 </head>
 <body>
   <h1>Overview</h1>
+  <div class="navbar">
+    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+  </div>
   <div class="container">
     <div class="button-group">
       <label for="month">Month:</label>

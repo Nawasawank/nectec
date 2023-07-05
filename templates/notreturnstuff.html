@@ -5,9 +5,11 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin-top: 50px;
     }
     h1 {
       text-align: center;
+      margin-top: 70px;
     }
     .container {
       text-align: center;
@@ -15,20 +17,20 @@
     }
 
     table {
-      border-collapse: collapse;
-      width: 100%;
-      text-align: center;
-    }
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+    table-layout: auto;
+  }
 
-    th, td {
-      padding: 10px;
-      text-align: middle;
-      border-bottom: 1px solid #ddd;
-      width: 10%;
-    }
+  th, td {
+    padding: 10px;
+    text-align: middle;
+    border-bottom: 1px solid #ddd;
+  }
 
     th {
-      background-color: #4CAF50;
+      background-color: #e6b26a;
       color: white;
     }
     .go-back {
@@ -47,6 +49,37 @@
     .go-back a:hover {
       background-color: #8d8d8d;
     }
+    .navbar {
+      background-color: #eea239;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #f2f2f2;
+      text-align: center;
+      padding: 20px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar .navbar-right {
+      float: right;
+    }
+
+    .navbar a:hover {
+      background-color: #c98b33;
+    }
+    
+    label.radio-label {
+      display: inline-block;
+      margin-right: 10px;
+    }
   </style>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -61,7 +94,7 @@
           if (data.length === 0) {
             let row = document.createElement('tr');
             let messageCell = document.createElement('td');
-            messageCell.setAttribute('colspan', '9');
+            messageCell.setAttribute('colspan', '10');
             messageCell.style.color = 'red';
             messageCell.textContent = 'No data found.';
             row.appendChild(messageCell);
@@ -88,6 +121,8 @@
               qrCell.textContent = item.qr;
               let nameCell = document.createElement('td');
               nameCell.textContent = item.name;
+              let dayleftCell = document.createElement('td');
+              dayleftCell.textContent = item.dayleft;
               if (check === false) {
                 orderCell.style.color = 'red';
                 idCell.style.color = 'red';
@@ -98,6 +133,7 @@
                 qrCell.style.color = 'red';
                 refCell.style.color = 'red';
                 dayCell.style.color = 'red';
+                dayleftCell.style.color = 'red';
               } 
 
               row.appendChild(orderCell);
@@ -109,6 +145,7 @@
               row.appendChild(qrCell);
               row.appendChild(refCell);
               row.appendChild(dayCell);
+              row.appendChild(dayleftCell);
               tableBody.appendChild(row);
             });
           }
@@ -120,6 +157,10 @@
   </script>
 </head>
 <body>
+  <div class="navbar">
+    <a href="/logout" style="color: #000000;" class="navbar-right">Log Out</a>
+    <span class="navbar-right" style="color: #000000; padding: 20px 16px;font-size: 18px;">ID: {{ id }}</span>
+  </div>
   <h1>Not Return Stuff</h1>
   <div style="text-align: center;">
     <label style="color: red; font-size: 14px;">RED - LATE</label><br /><br />
@@ -137,6 +178,7 @@
         <th>Code</th>
         <th>Reference</th>
         <th>Checkout</th>
+        <th>Day(s) left</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
