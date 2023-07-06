@@ -134,6 +134,7 @@ def register():
 
 
 
+
 @app.route('/menu', methods=['GET', 'POST'])
 @login_required
 def menu():
