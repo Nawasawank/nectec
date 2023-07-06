@@ -95,8 +95,11 @@ def register():
     if request.method == 'POST':
         id = request.form['id']
         password = request.form['password']
+        confirm_password=request.form['confirm_password']
         error_messages1 = []
         error_messages2 = []
+        error_messages3=[]
+        success=[]
 
         # Check if the username already exists
         mycursor = mydb.cursor()
@@ -111,16 +114,21 @@ def register():
             error_messages2.append("Password must be 6 characters.")
         if existing_user:
             error_messages1.append("Username already exists. Please choose a different username.")
+        if password != confirm_password:
+            error_messages3.append("Password doesn't matched.")
+        
+        print(error_messages3)
 
-        if len(error_messages1) > 0 or len(error_messages2) > 0:
-            return render_template('register.html', error_messages1=error_messages1, error_messages2=error_messages2)
+        if len(error_messages1) > 0 or len(error_messages2) > 0 or len(error_messages3) > 0:
+            return render_template('register.html', error_messages1=error_messages1, error_messages2=error_messages2,error_messages3=error_messages3)
         else:
+            success.append("Registration successful!")
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             query = "INSERT INTO member (username, password_hash) VALUES (%s, %s)"
             mycursor.execute(query, (id, hashed_password))
             mydb.commit()
             
-            return render_template('register.html', success_message=True)
+            return render_template('register.html', success_message=success)
     
     return render_template('register.html')
 

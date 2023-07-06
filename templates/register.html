@@ -84,15 +84,17 @@
       font-size: 36px;
       text-transform: uppercase;
     }
+    .success-box {
+      background-color: #cce7bf;
+      color: #4b7149;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
     
   </style>
 </head>
 <body>
-  <script>
-    function showAlert() {
-      alert("Registration successful!");
-    }
-  </script>
   <h1>Borrow & Return</h1>
   <div class="container">
     <h2>Register</h2>
@@ -101,29 +103,45 @@
         <label for="id">ID</label>
         <input type="text" id="id" name="id" required>
       </div>
-  
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
       </div>
-      <button type="submit" class="btn" onclick="showAlert()">Register</button>
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" required>
+      </div>
+      <button type="submit" class="btn">Register</button>
     </form><br>
     <p>Already have an account? <a href="/">Log in</a></p>
     {% if error_messages1 %}
-    <div class="error-box">
+      <div class="error-box">
         {% for message1 in error_messages1 %}
         <p style="color: red; margin-bottom: 10px;">{{ message1 }}</p>
         {% endfor %}
       </div>
-      {% endif %}
-      {% if error_messages2 %}
+    {% endif %}
+    {% if error_messages2 %}
       <div class="error-box">
         {% for message2 in error_messages2 %}
         <p style="color: red; margin-bottom: 10px;">{{ message2 }}</p>
         {% endfor %}
       </div>
-      {% endif %}
-      
+    {% endif %}
+    {% if error_messages3 %}
+      <div class="error-box">
+        {% for message3 in error_messages3 %}
+        <p style="color: red; margin-bottom: 10px;">{{ message3 }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if success_message %}
+      <div class="success-box">
+        {% for success1 in success_message %}
+        <p style="color: rgb(87, 117, 82); margin-bottom: 10px;">{{ success1 }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>  
 </body>
 </html>
