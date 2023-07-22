@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, jsonify, session, make_response,redirect
+from flask import Flask, render_template, request, flash, jsonify, session, make_response,redirect,url_for
 import mysql.connector
 from datetime import timedelta, datetime
 import os
@@ -42,10 +42,12 @@ def load_user(user_id):
     return User(user_id)
 
 
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated: 
-        return redirect('/menu')
+        return redirect(url_for('menu'))  # Redirect to the 'menu' route if the user is already logged in.
+
     if request.method == 'POST':
         id = request.form['id']
         password = request.form['password']
@@ -58,19 +60,17 @@ def login():
         if user and bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
             login_user(User(id))
             payload = {
-                'username': id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+                'username': id
             }
-            
             access_token = pyjwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
             session['access_token'] = access_token
-            print(access_token)
-            response = make_response(render_template('index.html',id=id))
+            response = make_response(redirect(url_for('menu')))  # Redirect to the 'menu' route
             response.set_cookie('access_token', access_token)
-            print(response)
             return response
         else:
             return render_template('login.html', message="Incorrect Username or Password")
+
     else:
         return render_template('login.html')
 
