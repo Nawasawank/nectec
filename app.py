@@ -13,11 +13,11 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'snsdforever9'
-app.config['MYSQL_DB'] = 'borrowingsystem'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = ''
 
 
-app.config['JWT_SECRET_KEY'] = '963b5afdccdafbd06d384dca'
+app.config['JWT_SECRET_KEY'] = ''
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt = JWTManager(app)
 login_manager = LoginManager()
